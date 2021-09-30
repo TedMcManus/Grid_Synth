@@ -29,6 +29,7 @@ function setup() {
   //create an oscillator and polysynth
   monoSynth = new p5.MonoSynth();
   polySynth= new p5.PolySynth();
+  polySynth.setADSR(.1,.1,.8,.2);
   //need this for Chrome
   userStartAudio();
 
@@ -259,8 +260,9 @@ function keyPressed(){
     j=-1;
   }
   let steps=[];
-  steps=fastfactor(getValue())
-  console.log(steps);
+  steps=fastfactor(getValue());
+
+  console.log(polySynth.notes);
   let freq=fund*pow(2,(i-j)/12);
   let vel=.1;
   let dur=2;
@@ -289,7 +291,7 @@ function fastfactor(N){
     while (N % i == 0) 
     { 
       console.log(i);
-      append(outputarray,i)
+      append(outputarray,i);
       N = N/i; 
     } 
   } 
@@ -310,6 +312,7 @@ function findUnique(arr){
           out.append[arr[i]];
         }
     }
+  return out;
 }
 
 //Handle released keys

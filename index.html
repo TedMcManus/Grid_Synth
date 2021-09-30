@@ -10,9 +10,18 @@
 
     <script src="libraries/p5.js"></script>
     <script src="libraries/p5.sound.js"></script>
+
+    <script>
+      window.addEventListener("keydown", function(event) {
+          // arrow key
+          if ([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+              event.preventDefault();
+          }
+      });
+  </script>
   </head>
 
   <body>
-    <script src="sketch.js"></script>
+    <script src="visual_test.js"></script>
   </body>
 </html>
