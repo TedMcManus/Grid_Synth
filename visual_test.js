@@ -21,6 +21,7 @@ let gridnumy = 4; //and in y
 let filter_envelope=new p5.Envelope();
 let harmonicity;
 let fenv_is_on=true;
+let depth = 1000;
 
 
 let keygrid=[
@@ -87,24 +88,29 @@ function setup() {
 
   fill('white');
   fATTACK=createSlider(0,5,.5,.1);
-  fATTACK.position(450*Wstep,H-90*Hstep);
+  fATTACK.position(450*Wstep,H-105*Hstep);
   fATTACK.style('width','150px');
   fATTACK.mouseReleased(fenv);
 
   fDECAY=createSlider(0,5,1,.1);
-  fDECAY.position(450*Wstep,H-70*Hstep);
+  fDECAY.position(450*Wstep,H-85*Hstep);
   fDECAY.style('width','150px');
   fDECAY.mouseReleased(fenv);
 
   fSUSTAIN=createSlider(0,1,1,.1);
-  fSUSTAIN.position(450*Wstep,H-50*Hstep);
+  fSUSTAIN.position(450*Wstep,H-65*Hstep);
   fSUSTAIN.style('width','150px');
   fSUSTAIN.mouseReleased(fenv);
 
   fRELEASE=createSlider(0,5,1.5,.1);
-  fRELEASE.position(450*Wstep,H-30*Hstep);
+  fRELEASE.position(450*Wstep,H-45*Hstep);
   fRELEASE.style('width','150px');
   fRELEASE.mouseReleased(fenv);
+
+  fLEVEL=createSlider(0,3000,1000,100);
+  fLEVEL.position(450*Wstep,H-25*Hstep);
+  fLEVEL.style('width','150px');
+  fLEVEL.mouseReleased(fenv);
   fenv();
 
   ATTACK=createSlider(0,5,.5,.1);
@@ -142,10 +148,10 @@ function setup() {
   F.setType('lowpass');
   F.set(5000,10);
   F.freq(filter_envelope);
-  filter_envelope.aLevel=1000;
+  filter_envelope.aLevel=depth;
 
   fenvbutton=createButton('On/Off');
-  fenvbutton.position(place1*Wstep+225*Wstep+150,H-117*Hstep);
+  fenvbutton.position(place1*Wstep+225*Wstep+150,H-137*Hstep);
   fenvbutton.mousePressed(fenvflip);
 
   //Draw all the static stuff in the setup loop to save time
@@ -160,14 +166,15 @@ function setup() {
     text('Decay',place1*Wstep,H-55*Hstep);
     text('Attack',place1*Wstep,H-75*Hstep);
 
-    text('Release',place1*Wstep+225*Wstep,H-15*Hstep);
-    text('Sustain',place1*Wstep+225*Wstep,H-35*Hstep);
-    text('Decay',place1*Wstep+225*Wstep,H-55*Hstep);
-    text('Attack',place1*Wstep+225*Wstep,H-75*Hstep);
+    text('Depth',place1*Wstep+225*Wstep,H-10*Hstep);
+    text('Release',place1*Wstep+225*Wstep,H-30*Hstep);
+    text('Sustain',place1*Wstep+225*Wstep,H-50*Hstep);
+    text('Decay',place1*Wstep+225*Wstep,H-70*Hstep);
+    text('Attack',place1*Wstep+225*Wstep,H-90*Hstep);
 
     fill(255,50,100);
     text('Amp Envelope',place1*Wstep,H-100*Hstep);
-    text('Filter Envelope',place1*Wstep+225*Wstep,H-100*Hstep);
+    text('Filter Envelope',place1*Wstep+225*Wstep,H-120*Hstep);
 
     text('Cardinality',Nx,H-100);
     text('Harmonicity',Nx,H-48);
@@ -253,8 +260,8 @@ function draw() {
             //let center=floor(gridnumx/2);
             //y_index=center-j;
             //x_index=i-center;
-            let num = j*4 + i*3;
-            text(num, x[i]-w/8, y[j]+w/8);
+            //let num = j*4 + i*3;
+            //text(num, x[i]-w/8, y[j]+w/8);
         }
     }
 }
@@ -265,6 +272,7 @@ function env() {
 
 function fenv() {
     filter_envelope.setADSR(fATTACK.value(),fDECAY.value(),fSUSTAIN.value(),fRELEASE.value());
+    filter_envelope.setRange(fLEVEL.value(),0);
 }
 
 function update_wave(){
