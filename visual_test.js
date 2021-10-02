@@ -1,6 +1,3 @@
-//const { PolySynth } = require("../../.vscode/extensions/samplavigne.p5-vscode-1.2.7/p5types"); ? 
-
-
 var x = []; //X locations of circles
 var y = []; //Y locations of circles
 var w; //Width of circles
