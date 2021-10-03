@@ -19,6 +19,9 @@ let filter_envelope=new p5.Envelope();
 let harmonicity;
 let fenv_is_on=true;
 let depth = 1000;
+let j_mult = 4;
+let i_mult = 3;
+let fundamental;
 
 
 let keygrid=[
@@ -74,6 +77,12 @@ function setup() {
   N.position(Nx,Ny-13*Hstep);
   N.size(70);
   N.elt.value=12;
+
+  fundamental = createInput('');
+  fundamental.position(place1*Wstep+225*Wstep+240*Wstep,Ny+35*Hstep);
+  fundamental.size(70);
+  fundamental.elt.value=fund;
+  fundamental.input(fund_update);
   
   harmonicity=createSelect('WAVE');
   harmonicity.option('Scalar');
@@ -135,7 +144,7 @@ function setup() {
   WAVE.option('triangle');
   WAVE.option('sawtooth');
   WAVE.option('square');
-  WAVE.position(place1*Wstep+225*Wstep+240*Wstep,H-80*Hstep);
+  WAVE.position(place1*Wstep+225*Wstep+240*Wstep,H-90*Hstep);
   //this is what we like to call "bad practice"
   WAVE.changed(update_wave);
 
@@ -176,6 +185,7 @@ function setup() {
     text('Cardinality',Nx,H-100);
     text('Harmonicity',Nx,H-48);
     text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-100*Hstep);
+    text('Fundamental (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-48*Hstep);
 }
 
 function initialize(col){
@@ -187,6 +197,11 @@ function initialize(col){
     }
   return col;
 }
+
+function fund_update(){
+    fund=int(fundamental.elt.value);
+}
+
 
 function fenvflip(){
     fenv_is_on=!fenv_is_on;
@@ -214,6 +229,7 @@ function draw() {
     stroke(0);
     ystep=100/y.length;
     xstep=100/x.length;
+    fund_update();
     
     if (keyIsDown(LEFT_ARROW)) {
         r=F.res();
@@ -257,8 +273,9 @@ function draw() {
             //let center=floor(gridnumx/2);
             //y_index=center-j;
             //x_index=i-center;
-            //let num = j*4 + i*3;
-            //text(num, x[i]-w/8, y[j]+w/8);
+            //let num = j*j_mult + i*i_mult;
+            //console.log(j_mult,i_mult);
+            //text(num, x[i]-w/8, y[y.length-j-1]+w/8);
         }
     }
 }
