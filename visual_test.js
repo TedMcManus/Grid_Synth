@@ -258,13 +258,13 @@ function draw() {
             filler=[150+xstep*i,80,100+ystep*j];
             inv_filler=[155-(xstep*i),135-(ystep*j)/2,250];
             //Fill the "clicked" boxes black, white otherwise
-            if (col[j][i]){
+            if (col[y.length-j-1][i]){
                 fill(filler);
-                ellipse(x[i], y[j], w, w);
+                ellipse(x[i], y[y.length-j-1], w, w);
             }
             else {
                 fill("black");
-                ellipse(x[i], y[j], w, w);
+                ellipse(x[i], y[y.length-j-1], w, w);
             }
 
             //Write in the numbers for the degree of each note
@@ -273,9 +273,10 @@ function draw() {
             //let center=floor(gridnumx/2);
             //y_index=center-j;
             //x_index=i-center;
-            //let num = j*j_mult + i*i_mult;
+            let num = j*j_mult + i*i_mult;
             //console.log(j_mult,i_mult);
-            //text(num, x[i]-w/8, y[y.length-j-1]+w/8);
+            text(num, x[i]-w/8, y[y.length-j-1]+w/8);
+            
         }
     }
 }
