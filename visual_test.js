@@ -16,6 +16,7 @@ let place1=150;
 let gridnumx = 14; //Number of rows/columns in x
 let gridnumy = 4; //and in y
 let filter_envelope=new p5.Envelope();
+let metaharmonicity;
 let harmonicity;
 let fenv_is_on=true;
 let depth = 1000;
@@ -74,7 +75,7 @@ function setup() {
   Nx=20;
   Ny=windowHeight-windowHeight/10;
   N=createInput('Cardinality');
-  N.position(Nx,Ny-13*Hstep);
+  N.position(Nx,Ny-33*Hstep);
   N.size(70);
   N.elt.value=12;
 
@@ -84,12 +85,19 @@ function setup() {
   fundamental.elt.value=fund;
   fundamental.input(fund_update);
   
-  harmonicity=createSelect('WAVE');
+  harmonicity=createSelect('HARMONICITY');
   harmonicity.option('Scalar');
   harmonicity.option('Intermediate');
   harmonicity.option('Chordal');
   harmonicity.selected='Chordal';
-  harmonicity.position(Nx,Ny+40*Hstep);
+  harmonicity.position(Nx,Ny+12*Hstep);
+
+  metaharmonicity=createSelect('METAHARMONICITY');
+  metaharmonicity.option('Scalar (1&2)');
+  metaharmonicity.option('Inter (2&3)');
+  metaharmonicity.option('Chordal (1&3)');
+  metaharmonicity.selected='Inter (2&3)';
+  metaharmonicity.position(Nx,Ny+50*Hstep);
 
 
   fill('white');
@@ -182,8 +190,8 @@ function setup() {
     text('Amp Envelope',place1*Wstep,H-100*Hstep);
     text('Filter Envelope',place1*Wstep+225*Wstep,H-120*Hstep);
 
-    text('Cardinality',Nx,H-100);
-    text('Harmonicity',Nx,H-48);
+    text('Cardinality',Nx,H-120);
+    text('Harmonicity',Nx,H-73);
     text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-100*Hstep);
     text('Fundamental (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-48*Hstep);
 }
@@ -337,9 +345,14 @@ function powerlist(arr){
 }
 
 function frqcalc(J_in,I_in){
-    [j_mult,i_mult]=heuristic(powerlist(fastfactor(getValue())));
-    console.log(powerlist(fastfactor(getValue())));
-    console.log([j_mult,i_mult]);
+    power_list = powerlist(fastfactor(getValue()));
+    if(power_list.length==3){
+        power_list=metaheuristic(power_list);
+        console.log('Invoking Metaheuristic');
+    }
+    //console.log(power_list);
+    [j_mult,i_mult]=heuristic(power_list);
+    //console.log(powerlist(fastfactor(getValue())));
     return fund*pow(2,(-j_mult*J_in+i_mult*I_in)/getValue());
 }
 
@@ -362,12 +375,24 @@ function heuristic(arr){
         }
         return [j_out,i_out];
     }
-    else{
-        if(document.activeElement!=N.elt){
-            alert(['Your number ',getValue(),' could not be factored into 2 primes. \n This is causing me consternation'])
+}
 
-        }
+function metaheuristic(arr){
+    console.log(arr);
+    selector=metaharmonicity.elt.selectedIndex;
+    if(selector==0){ //scalar, 1 and 2
+        j_out=arr[1];
+        i_out=arr[0];
     }
+    if(selector==1){ //intermediate, 2 and 3
+        j_out=arr[2]; 
+        i_out=arr[1];
+    }
+    if(selector==2){ //chordal, 1 and 3
+        j_out=arr[2];
+        i_out=arr[0];
+    }
+    return [i_out,j_out];
 }
 
 function keyPressed(){
@@ -395,16 +420,6 @@ function keyPressed(){
     append(active_notes,frqtotest)
     polySynth.audiovoices[l].triggerAttack(frqtotest);
 
-    // for(var i = 0; i<notearr.length;i++){
-    //     frqtotest=fund*pow(2,(notearr[i][0]-notearr[i][1])/12);
-    //     if(!(active_notes.includes(frqtotest))){
-    //         append(active_notes,frqtotest)
-    //         polySynth.audiovoices[l].triggerAttack(frqtotest);
-    //     }
-    //     else {
-    //         append(duplicated,frqtotest);
-    //     }
-    // }
     if (key=LEFT_ARROW) {
         r=F.res();
         F.res(r-10);

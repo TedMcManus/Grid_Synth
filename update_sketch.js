@@ -20,6 +20,7 @@ let gridnumx = 14; //Number of rows/columns in x
 let gridnumy = 4; //and in y
 let filter_envelope=new p5.Envelope();
 let harmonicity;
+let metaharmonicity;
 let fenv_is_on=true;
 
 
@@ -77,12 +78,19 @@ function setup() {
   N.size(70);
   N.elt.value=12;
   
-  harmonicity=createSelect('WAVE');
+  harmonicity=createSelect('HARMONICITY');
   harmonicity.option('Scalar');
   harmonicity.option('Intermediate');
   harmonicity.option('Chordal');
   harmonicity.selected='Chordal';
   harmonicity.position(Nx,Ny+40*Hstep);
+
+  metaharmonicity=createSelect('METAHARMONICITY');
+  metaharmonicity.option('Scalar (1&2)');
+  metaharmonicity.option('Intermediate (2&3)');
+  metaharmonicity.option('Chordal (1&3)');
+  metaharmonicity.selected='Intermediate (2&3)';
+  metaharmonicity.position(Nx,Ny+50*Hstep);
 
 
   fill('white');
