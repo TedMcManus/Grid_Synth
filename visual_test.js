@@ -23,13 +23,15 @@ let depth = 1000;
 let j_mult = 4;
 let i_mult = 3;
 let fundamental;
-
+let RVB;
+let DLY;
+let DLYtype = 0;
 
 let keygrid=[
     ['1','2','3','4','5','6','7','8','9','0','-','='],
     ['q','w','e','r','t','y','u','i','o','p','[',']'],
     ['a','s','d','f','g','h','j','k','l',';',"'"],
-    ['z','x','c','v','b','n','m',',','.','/','-','='],
+    ['z','x','c','v','b','n','m',',','.','/'],
 ];
 
 let keystates=[
@@ -125,6 +127,42 @@ function setup() {
   fLEVEL.position(450*Wstep,H-25*Hstep);
   fLEVEL.style('width','150px');
   fLEVEL.mouseReleased(fenv);
+
+  RVBtime=createSlider(0,10,5,.1);
+  RVBtime.position(1000*Wstep,H-105*Hstep);
+  RVBtime.style('width','100px');
+  RVBtime.mouseReleased(RVB_UPDATE);
+
+  RVBDecay=createSlider(1,10,2,.1);
+  RVBDecay.position(1000*Wstep,H-85*Hstep);
+  RVBDecay.style('width','100px');
+  RVBDecay.mouseReleased(RVB_UPDATE);
+
+  RVBDRYWET=createSlider(0,1,0,.05);
+  RVBDRYWET.position(1000*Wstep,H-65*Hstep);
+  RVBDRYWET.style('width','100px');
+  RVBDRYWET.mouseReleased(RVB_UPDATE);
+
+  DLYFB=createSlider(0,.99,0,.01);
+  DLYFB.position(800*Wstep,H-105*Hstep);
+  DLYFB.style('width','100px');
+  DLYFB.mouseReleased(DLY_UPDATE);
+
+  DLYtime=createSlider(0,.99,.5,.01);
+  DLYtime.position(800*Wstep,H-85*Hstep);
+  DLYtime.style('width','100px');
+  DLYtime.mouseReleased(DLY_UPDATE);
+
+  DLYleft=createSlider(0,.99,.5,.01);
+  DLYleft.position(800*Wstep,H-65*Hstep);
+  DLYleft.style('width','100px');
+  DLYleft.mouseReleased(DLY_UPDATE);
+
+  DLYright=createSlider(0,.99,.5,.01);
+  DLYright.position(800*Wstep,H-45*Hstep);
+  DLYright.style('width','100px');
+  DLYright.mouseReleased(DLY_UPDATE);
+  
   fenv();
 
   ATTACK=createSlider(0,5,.5,.1);
@@ -163,6 +201,25 @@ function setup() {
   F.set(5000,10);
   F.freq(filter_envelope);
   filter_envelope.aLevel=depth;
+  F.disconnect();
+
+  RVB=new p5.Reverb();
+  RVB.drywet(.2);
+
+  DLY=new p5.Delay();
+
+  DLYbutton=createButton('Mono/Stereo');
+  DLYbutton.position(800*Wstep,H-137*Hstep);
+  DLYbutton.mousePressed(DLYflip);
+
+  DLY.process(F);
+  RVB.process(DLY);
+  DLY.disconnect();
+  F.connect(RVB);
+  DLY.connect(RVB);
+
+  DLY_UPDATE();
+  RVB_UPDATE();
 
   fenvbutton=createButton('On/Off');
   fenvbutton.position(place1*Wstep+225*Wstep+150,H-137*Hstep);
@@ -186,14 +243,25 @@ function setup() {
     text('Decay',place1*Wstep+225*Wstep,H-70*Hstep);
     text('Attack',place1*Wstep+225*Wstep,H-90*Hstep);
 
+    text('Dry/Wet',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-50*Hstep);
+    text('Decay',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-70*Hstep);
+    text('Time',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-90*Hstep);
+
+    text('Time',place1*Wstep+225*Wstep+345*Wstep,H-70*Hstep);
+    text('FB',place1*Wstep+225*Wstep+345*Wstep,H-90*Hstep);
+    text('(Right)',place1*Wstep+225*Wstep+345*Wstep,H-30*Hstep);
+    text('(Left)',place1*Wstep+225*Wstep+345*Wstep,H-50*Hstep);
+
     fill(255,50,100);
     text('Amp Envelope',place1*Wstep,H-100*Hstep);
     text('Filter Envelope',place1*Wstep+225*Wstep,H-120*Hstep);
+    text('Reverb',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-120*Hstep);
+    text('Delay',place1*Wstep+225*Wstep+345*Wstep,H-120*Hstep);
 
     text('Cardinality',Nx,H-120);
     text('Harmonicity',Nx,H-73);
     text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-100*Hstep);
-    text('Fundamental (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-48*Hstep);
+    text('Fund (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-48*Hstep);
 }
 
 function initialize(col){
@@ -204,6 +272,36 @@ function initialize(col){
         }
     }
   return col;
+}
+
+function RVB_UPDATE(){
+    RVB.drywet(RVBDRYWET.value());
+    RVB.set(RVBtime.value(),RVBDecay.value());
+}
+
+function DLY_UPDATE(){
+    DLY.process(F,DLYtime.value(),DLYFB.value());
+    if(DLYtype=='pingPong'){
+        DLY.rightDelay.delayTime=DLYright.value();
+        DLY.leftDelay.delayTime=DLYleft.value();
+    }
+}
+
+function DLYflip(){
+    if(DLYtype==0){
+        DLY.setType('pingPong');
+        DLYtype='pingPong';
+        DLYbutton.style('background-color', color(25, 23, 200, 50));
+        DLY.rightDelay.delayTime=DLYright.value();
+        DLY.leftDelay.delayTime=DLYleft.value();
+    }
+    else{
+        DLYtype=0;
+        DLY.setType(0);
+        DLYbutton.style('background-color', color('white'));
+        DLY.rightDelay.delayTime=DLYtime.value();
+        DLY.leftDelay.delayTime=DLYtime.value();
+    }
 }
 
 function fund_update(){
@@ -238,7 +336,7 @@ function draw() {
     ystep=100/y.length;
     xstep=100/x.length;
     fund_update();
-    
+    DLY_UPDATE();
     if (keyIsDown(LEFT_ARROW)) {
         r=F.res();
         F.res(r-1);
