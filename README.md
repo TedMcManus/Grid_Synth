@@ -38,6 +38,10 @@ If the heuristic is "scalar," we choose the smallest numbers. In 24-TET, we woul
 (rounding down in the case of an even-length list). In 24-TET, this gives us {4,3}. Finally, we have the "chordal" heuristic which picks the largest numbers from each array 
 (8 and 9 in 24-TET). 
 
+In the case that our number can be factored into 3 distinct primes, we use the "meta-heuristic" to pick which factors to consider. The easiest example is N=30 (30=2X3X5). 
+The process is like this: 30->{2,3,5}->{2,3,5}->{{2,4,8},{3,6,9},{5}}. At this point, we use the meta-heuristic to choose which of these arrays to pass to the heuristic. This 
+process works pretty similarly, returning either the 2 smallest factors, the 2 largest factors, or the smallest and largest factors. 
+
 
 
 ## Functionality (How the sound gets to you)
