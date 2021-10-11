@@ -63,6 +63,8 @@ is common to all ADSR envelopes (further reading [here](https://support.apple.co
 amplifier, the sound is processed by a digital [low-pass filter](https://mynewmicrophone.com/audio-eq-what-is-a-low-pass-filter-how-do-lpfs-work/)
 which has its own independent ADSR envelope that is triggered on every keypress. It will remain at its 
 sustain level until every key is released. The filter envelope can be disabled by pressing the "on/off" button, which turns dark when the filter envelope is not enabled. 
+The avid synthesist may note that the absence of a filter per voice makes this synthesizer "paraphonic" rather than "polyphonic," at which point I would kindly refer them 
+to the source code so they can do it themselves :). 
 
 The sound then passes into the effects section. First, the audio enters a stereo delay. By default, the delay is mono, but engaging the mono/stereo switch (where dark 
 is stereo), the delay offers separate controls for the right and left audio channels. The user has control over feedback and the delay time. More information about 
@@ -72,6 +74,8 @@ control to the minimum, so no audio is fed back to the delay. Finally, the sound
 [p5 documentation](https://p5js.org/reference/#/p5.Reverb) as to how their reverb works. Finally, the audio is piped out to the computer, and the operating system 
 takes care of sending the audio to the listener. 
 
+## CONTRIBUTIONS
+Pull requests are welcome, but please open an issue first so I can learn what you would like to edit. 
 
 <!--
 ## Installation
