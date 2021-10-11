@@ -42,6 +42,14 @@ In the case that our number can be factored into 3 distinct primes, we use the "
 The process is like this: 30->{2,3,5}->{2,3,5}->{{2,4,8},{3,6,9},{5}}. At this point, we use the meta-heuristic to choose which of these arrays to pass to the heuristic. This 
 process works pretty similarly, returning either the 2 smallest factors, the 2 largest factors, or the smallest and largest factors. 
 
+The code then uses the two numbers that have been returned from this process to create a grid of frequency values. Along the right, the frequency increases in increments 
+decided by the first factor, and as we travel up, the increments depend on the second factor. Every note's frequency is calculated as 2^(n/N), where N is the cardinality 
+of the system and n is (r x f1)+(l x f2), where r is the number of rightwards steps, l is the number of leftwards steps, and f1 and f2 are the first and second factors. 
+
+The theory as to *why* this is being done would not fit in a GitHub readme, but it has to do with the Tonnetz of Neo-Riemannian harmony. Perhaps the reader can figure out why 
+this connection can be made by noting that the "chordal" grid in 12-TET is an exact copy of the [Tonnetz](https://en.wikipedia.org/wiki/Tonnetz) if one ignores the triangles 
+superimposed by theorists who are very concerned about triads :)
+
 
 
 ## Functionality (How the sound gets to you)
@@ -62,7 +70,7 @@ the function of delay units can be found [here](https://www.teachmeaudio.com/mix
 control to the minimum, so no audio is fed back to the delay. Finally, the sound enters a convolution reverb with a dry-wet fader and control over the decay percent 
 (essentially how much audio is fed through to the next echo) and the decay time (the characteristic time of an echo). Reverb is complicated, so I refer to the 
 [p5 documentation](https://p5js.org/reference/#/p5.Reverb) as to how their reverb works. Finally, the audio is piped out to the computer, and the operating system 
-takes care of sending the audio to the listener
+takes care of sending the audio to the listener. 
 
 
 <!--
