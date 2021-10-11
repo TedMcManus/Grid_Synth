@@ -25,6 +25,20 @@ In this section, I will outline the basic algorithm for deciding which frequency
 following explanation does very little to engage with *why* the operations are taking place, but this will be adressed in an upcoming thesis in the Dartmouth 
 department of music. 
 
+First off, the code checks what the number in the "cardinality" input box is (we'll call it N), and splits the interval from the fundamental frequency 
+to the note an octave above it into N equally-spaced intervals. This creates an N-TET (N-tone equally tempered) system. More about the theory of equal temperament is 
+[here](https://en.wikipedia.org/wiki/Equal_temperament). 
+
+Next, we factor N and store the factors in an array. For example, if N=12, we would have the array {2,2,3}. We then "prune" the array to remove duplicates (in 12-TET this now
+leaves us with {2,3}). Next, we check if any power of these numbers is less than half of N. We store these new numbers in an array of arrays. For 12-TET, this gives us 
+{{2,4},{3}}. Another example may be helpful. Suppose N=24. The process looks like 24->{2,2,2,3}->{2,3}->{{2,4,8},{3,9}}. 
+
+Next, we use a heuristic to choose a pair of these numbers, picking one number from the first array and another number from the second. I have three heuristics in the code. 
+If the heuristic is "scalar," we choose the smallest numbers. In 24-TET, we would pick 2 and 3. The next is "intermediate," where we choose from the middle of the lists 
+(rounding down in the case of an even-length list). In 24-TET, this gives us {4,3}. Finally, we have the "chordal" heuristic which picks the largest numbers from each array 
+(8 and 9 in 24-TET). 
+
+
 
 ## Functionality (How the sound gets to you)
 As it stands, the sound engine behind the user interface is based on classic analog polyphonic synthesizers. Every time that a key is pressed, 
