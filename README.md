@@ -4,7 +4,27 @@ Driver code for a web-based synthesizer written in p5.js
 ## Using the app
 As it stands, this application has been tested on both Google Chrome and Microsoft Edge browsers. In theory, any web browset that supports the
 [Web Audio API](https://caniuse.com/audio-api) and [P5.js](https://github.com/processing/p5.js/blob/main/contributor_docs/supported_browsers.md)
-should be able to use the application without problems
+should be able to use the application without problems. 
+
+## Controls
+The application supports several user interactions. 
+#### PLAYING NOTES 
+Pressing any key on your computer keyboard will trigger a note. On the top row, keys from "1" to "=" will work, on the second, "q" to "]", on the third, 
+"a" to "'", and on the fourth, "z" to "/". The layout of a typical keyboard makes playing notes somewhat annoying, so if you have an ortholinear 
+keyboard, definitely break it out here. 
+#### FILTER CONTROLS
+Pressing the space bar will trigger the filter envelope manually (as will playing a note while the envelope is engaged). Additionally, the arrow keys control 
+filter parameters - up/down control the cutoff and left/right control the resonance (left is less, right is more). 
+#### OTHER CONTROLS
+Sliders can be used to control the ADSR envelopes attached to the amp and filter, as well as the effects. The user can also use dropdown menus to select the core
+waveform of the synthesizer, as well as change the fundamental pitch (the pitch of the note which bears the label "0")in an input box. The other inputs are for the 
+cardinality (the number of tones to the octave), and the "harmonicity" and "metaharmonicity" of the system, which are terms that bear some explanation in the next section. 
+
+## What in god's name is going on here??
+In this section, I will outline the basic algorithm for deciding which frequency is being played by an oscillator when a user hits a key on the keyboard. The 
+following explanation does very little to engage with *why* the operations are taking place, but this will be adressed in an upcoming thesis in the Dartmouth 
+department of music. 
+
 
 ## Functionality (How the sound gets to you)
 As it stands, the sound engine behind the user interface is based on classic analog polyphonic synthesizers. Every time that a key is pressed, 
