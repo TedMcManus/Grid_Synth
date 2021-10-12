@@ -73,7 +73,7 @@ The sound then passes into the effects section. First, the audio enters a stereo
 is stereo), the delay offers separate controls for the right and left audio channels. The user has control over feedback and the delay time. More information about 
 the function of delay units can be found [here](https://www.teachmeaudio.com/mixing/equipment/effects/delay). The delay can be effectively bypassed by setting the feedback
 control to the minimum, so no audio is fed back to the delay. Finally, the sound enters a convolution reverb with a dry-wet fader and control over the decay percent 
-(essentially how much audio is fed through to the next echo) and the decay time (the characteristic time of an echo). Reverb is complicated, so I refer to the 
+(essentially how much audio is fed through to the next echo) and the decay time (the characteristic time of an echo). Convolution reverb is complicated, so I refer to the 
 [p5 documentation](https://p5js.org/reference/#/p5.Reverb) as to how their reverb works. Finally, the audio is piped out to the computer, and the operating system 
 takes care of sending the audio to the listener. 
 
