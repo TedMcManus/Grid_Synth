@@ -2,26 +2,28 @@
 Driver code for a tonnetz-based polyphonic synthesizer written in p5.js
 
 ## Using the app
-As it stands, this application has been tested on both Google Chrome and Microsoft Edge browsers. In theory, any web browset that supports the
+As it stands, this application has been tested on both Google Chrome and Microsoft Edge browsers. In theory, any web browser that supports the
 [Web Audio API](https://caniuse.com/audio-api) and [P5.js](https://github.com/processing/p5.js/blob/main/contributor_docs/supported_browsers.md)
 should be able to use the application without problems. 
 
 ## Controls
-The application supports several user interactions. 
+The application supports several user interactions:
 #### PLAYING NOTES 
 Pressing any key on your computer keyboard will trigger a note. On the top row, keys from "1" to "=" will work, on the second, "q" to "]", on the third, 
 "a" to "'", and on the fourth, "z" to "/". The layout of a typical keyboard makes playing notes somewhat annoying, so if you have an ortholinear 
-keyboard, definitely break it out here. 
+keyboard, definitely break it out here. Currently, using the mouse will not trigger notes, so this application will not function on an ipad, iphone, or other 
+touchscreen-based device. 
 #### FILTER CONTROLS
-Pressing the space bar will trigger the filter envelope manually (as will playing a note while the envelope is engaged). Additionally, the arrow keys control 
-filter parameters - up/down control the cutoff and left/right control the resonance (left is less, right is more). 
+Pressing the space bar will trigger the filter envelope manually (as will playing a note while the envelope is on). Additionally, the arrow keys control 
+filter parameters - up/down controls the cutoff and left/right controls the resonance (left is less, right is more). The filter will self-resonate, but not in the
+nice clean way that an analog LPF will, so watch out if you really crank the resonance. 
 #### OTHER CONTROLS
 Sliders can be used to control the ADSR envelopes attached to the amp and filter, as well as the effects. The user can also use dropdown menus to select the core
-waveform of the synthesizer, as well as change the fundamental pitch (the pitch of the note which bears the label "0")in an input box. The other inputs are for the 
+waveform of the synthesizer, as well as change the fundamental pitch (the pitch of the note which bears the label "0") in an input box. The other inputs are for the 
 cardinality (the number of tones to the octave), and the "harmonicity" and "metaharmonicity" of the system, which are terms that bear some explanation in the next section. 
 
-## What in god's name is going on here??
-In this section, I will outline the basic algorithm for deciding which frequency is being played by an oscillator when a user hits a key on the keyboard. The 
+## The Math
+In this section, I will outline the basic algorithm for deciding which frequency is being played when a user hits a key on the keyboard. The 
 following explanation does very little to engage with *why* the operations are taking place, but this will be adressed in an upcoming thesis in the Dartmouth 
 department of music. 
 
@@ -29,9 +31,10 @@ First off, the code checks what the number in the "cardinality" input box is (we
 to the note an octave above it into N equally-spaced intervals. This creates an N-TET (N-tone equally tempered) system. More about the theory of equal temperament is 
 [here](https://en.wikipedia.org/wiki/Equal_temperament). 
 
-Next, we factor N and store the factors in an array. For example, if N=12, we would have the array {2,2,3}. We then "prune" the array to remove duplicates (in 12-TET this now
-leaves us with {2,3}). Next, we check if any power of these numbers is less than half of N. We store these new numbers in an array of arrays. For 12-TET, this gives us 
-{{2,4},{3}}. Another example may be helpful. Suppose N=24. The process looks like 24->{2,2,2,3}->{2,3}->{{2,4,8},{3,9}}. 
+Next, we do a prime factorization of N and store the prime factors in an array. For example, if N=12, we would have the array {2,2,3}. We then "prune" the array to remove 
+duplicates (in 12-TET this leaves us with {2,3}). Next, we check if any power of these numbers is less than half of N. We store these new numbers in an array of arrays. 
+For 12-TET, this gives us {{2,4},{3}}. Another example may be helpful. Suppose N=24. The process looks like 24-(factor)->{2,2,2,3}-(prune)->{2,3}-(check powers)->
+{{2,4,8},{3,9}}. 
 
 Next, we use a heuristic to choose a pair of these numbers, picking one number from the first array and another number from the second. I have three heuristics in the code. 
 If the heuristic is "scalar," we choose the smallest numbers. In 24-TET, we would pick 2 and 3. The next is "intermediate," where we choose from the middle of the lists 
@@ -39,8 +42,8 @@ If the heuristic is "scalar," we choose the smallest numbers. In 24-TET, we woul
 (8 and 9 in 24-TET). 
 
 In the case that our number can be factored into 3 distinct primes, we use the "meta-heuristic" to pick which factors to consider. The easiest example is N=30 (30=2X3X5). 
-The process is like this: 30->{2,3,5}->{2,3,5}->{{2,4,8},{3,6,9},{5}}. At this point, we use the meta-heuristic to choose which of these arrays to pass to the heuristic. This 
-process works pretty similarly, returning either the 2 smallest factors, the 2 largest factors, or the smallest and largest factors. 
+The process is like this: 30-(factor)->{2,3,5}-(prune)->{2,3,5}-(check powers)->{{2,4,8},{3,6,9},{5}}. At this point, we use the meta-heuristic to choose which of these 
+arrays to pass to the heuristic. This process works pretty similarly, returning either the 2 smallest factors, the 2 largest factors, or the smallest and largest factors, and they're labeled the same way that they are in the heuristic. 
 
 The code then uses the two numbers that have been returned from this process to create a grid of frequency values. Along the right, the frequency increases in increments 
 decided by the first factor, and as we travel up, the increments depend on the second factor. Every note's frequency is calculated as 2^(n/N), where N is the cardinality 
