@@ -26,6 +26,10 @@ let fundamental;
 let RVB;
 let DLY;
 let DLYtype = 0;
+let Font;
+function preload() {
+    Font = loadFont('Assets/OSANS.ttf');
+}
 
 let keygrid=[
     ['1','2','3','4','5','6','7','8','9','0','-','='],
@@ -51,7 +55,8 @@ col = [
 function setup() {
     //create a grid that scales with window size
     col=initialize(col);
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth, windowHeight,WEBGL);
+    textFont(Font);
     w=windowWidth/23;
     offset=w/4;
     for (var i = 0; i < gridnumx; i++) {
@@ -60,7 +65,7 @@ function setup() {
             y[j] = (w + j * w)/yscale;
         }
     }
-    
+
   //create an oscillator and polysynth
   monoSynth = new p5.MonoSynth('sawtooth');
   polySynth= new p5.PolySynth();
@@ -69,10 +74,11 @@ function setup() {
   //need this for Chrome
   userStartAudio(); //Yes I WILL start the audio on your browser. Don't fight it.
 
+  translate(-width/2, -height/2);
   H=windowHeight;
   Hstep=H/792;
   W=windowWidth;
-  Wstep=W/1536
+  Wstep=W/1536;
   //Create the input window for the "cardinality" box
   Nx=20;
   Ny=windowHeight-windowHeight/10;
@@ -204,7 +210,6 @@ function setup() {
   F.disconnect();
 
   RVB=new p5.Reverb();
-  RVB.drywet(.2);
 
   DLY=new p5.Delay();
 
@@ -263,6 +268,7 @@ function setup() {
     text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-100*Hstep);
     text('Fund (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-48*Hstep);
 }
+
 
 function initialize(col){
     //Everything defaults to true
@@ -328,9 +334,8 @@ function getValue(){
 }
 
 ///////////// (j * 10 + i) = row number plus x position
-function draw() {
-
-
+function draw() { 
+    translate(-width/2, -height/2);
     rectMode(CENTER);
     stroke(0);
     ystep=100/y.length;
@@ -341,20 +346,16 @@ function draw() {
         r=F.res();
         F.res(r-1);
       }
-    
       if (keyIsDown(RIGHT_ARROW)) {
         r=F.res();
         F.res(r+1);
       }
-    
       if (keyIsDown(UP_ARROW)) {
         F.biquad.frequency.value+=50;
       }
-    
       if (keyIsDown(DOWN_ARROW)) {
         F.biquad.frequency.value-=50;
     }
-
     for (var j = 0; j < y.length; j++) {
         for (var i = 0; i < x.length; i++) {
             //Clear the screen
@@ -372,7 +373,6 @@ function draw() {
                 fill("black");
                 ellipse(x[i], y[y.length-j-1], w, w);
             }
-
             //Write in the numbers for the degree of each note
             textSize(20);
             fill(inv_filler);
@@ -382,7 +382,6 @@ function draw() {
             let num = j*j_mult + i*i_mult;
             //console.log(j_mult,i_mult);
             text(num, x[i]-w/8, y[y.length-j-1]+w/8);
-            
         }
     }
 }
@@ -508,8 +507,6 @@ function keyPressed(){
     keystates[key_y][key_x]=1;
     col[key_y][key_x] =! col[key_y][key_x];
     notearr=get_notes();
-    //console.log(notearr);
-    //console.log(active_notes);
     l=active_notes.length;
 
     i=key_x;
@@ -624,9 +621,4 @@ function clear_all(){
                 keystates[i][j]=0;;
         }
     }
-}
-
-
-function click(){
-    console.log('clicked');
 }

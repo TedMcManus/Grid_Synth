@@ -1,6 +1,3 @@
-//const { PolySynth } = require("../../.vscode/extensions/samplavigne.p5-vscode-1.2.7/p5types"); ? 
-
-
 var x = []; //X locations of circles
 var y = []; //Y locations of circles
 var w; //Width of circles
@@ -19,16 +16,26 @@ let place1=150;
 let gridnumx = 14; //Number of rows/columns in x
 let gridnumy = 4; //and in y
 let filter_envelope=new p5.Envelope();
-let harmonicity;
 let metaharmonicity;
+let harmonicity;
 let fenv_is_on=true;
-
+let depth = 1000;
+let j_mult = 4;
+let i_mult = 3;
+let fundamental;
+let RVB;
+let DLY;
+let DLYtype = 0;
+let Font;
+function preload() {
+    Font = loadFont('Assets/OSANS.ttf');
+}
 
 let keygrid=[
     ['1','2','3','4','5','6','7','8','9','0','-','='],
     ['q','w','e','r','t','y','u','i','o','p','[',']'],
     ['a','s','d','f','g','h','j','k','l',';',"'"],
-    ['z','x','c','v','b','n','m',',','.','/','-','='],
+    ['z','x','c','v','b','n','m',',','.','/'],
 ];
 
 let keystates=[
@@ -48,7 +55,8 @@ col = [
 function setup() {
     //create a grid that scales with window size
     col=initialize(col);
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth, windowHeight,WEBGL);
+    textFont(Font);
     w=windowWidth/23;
     offset=w/4;
     for (var i = 0; i < gridnumx; i++) {
@@ -57,7 +65,7 @@ function setup() {
             y[j] = (w + j * w)/yscale;
         }
     }
-    
+
   //create an oscillator and polysynth
   monoSynth = new p5.MonoSynth('sawtooth');
   polySynth= new p5.PolySynth();
@@ -66,53 +74,101 @@ function setup() {
   //need this for Chrome
   userStartAudio(); //Yes I WILL start the audio on your browser. Don't fight it.
 
+  translate(-width/2, -height/2);
   H=windowHeight;
   Hstep=H/792;
   W=windowWidth;
-  Wstep=W/1536
+  Wstep=W/1536;
   //Create the input window for the "cardinality" box
   Nx=20;
   Ny=windowHeight-windowHeight/10;
   N=createInput('Cardinality');
-  N.position(Nx,Ny-13*Hstep);
+  N.position(Nx,Ny-33*Hstep);
   N.size(70);
   N.elt.value=12;
+
+  fundamental = createInput('');
+  fundamental.position(place1*Wstep+225*Wstep+240*Wstep,Ny+35*Hstep);
+  fundamental.size(70);
+  fundamental.elt.value=fund;
+  fundamental.input(fund_update);
   
   harmonicity=createSelect('HARMONICITY');
   harmonicity.option('Scalar');
   harmonicity.option('Intermediate');
   harmonicity.option('Chordal');
   harmonicity.selected='Chordal';
-  harmonicity.position(Nx,Ny+40*Hstep);
+  harmonicity.position(Nx,Ny+12*Hstep);
 
   metaharmonicity=createSelect('METAHARMONICITY');
   metaharmonicity.option('Scalar (1&2)');
-  metaharmonicity.option('Intermediate (2&3)');
+  metaharmonicity.option('Inter (2&3)');
   metaharmonicity.option('Chordal (1&3)');
-  metaharmonicity.selected='Intermediate (2&3)';
+  metaharmonicity.selected='Inter (2&3)';
   metaharmonicity.position(Nx,Ny+50*Hstep);
 
 
   fill('white');
   fATTACK=createSlider(0,5,.5,.1);
-  fATTACK.position(450*Wstep,H-90*Hstep);
+  fATTACK.position(450*Wstep,H-105*Hstep);
   fATTACK.style('width','150px');
   fATTACK.mouseReleased(fenv);
 
   fDECAY=createSlider(0,5,1,.1);
-  fDECAY.position(450*Wstep,H-70*Hstep);
+  fDECAY.position(450*Wstep,H-85*Hstep);
   fDECAY.style('width','150px');
   fDECAY.mouseReleased(fenv);
 
   fSUSTAIN=createSlider(0,1,1,.1);
-  fSUSTAIN.position(450*Wstep,H-50*Hstep);
+  fSUSTAIN.position(450*Wstep,H-65*Hstep);
   fSUSTAIN.style('width','150px');
   fSUSTAIN.mouseReleased(fenv);
 
   fRELEASE=createSlider(0,5,1.5,.1);
-  fRELEASE.position(450*Wstep,H-30*Hstep);
+  fRELEASE.position(450*Wstep,H-45*Hstep);
   fRELEASE.style('width','150px');
   fRELEASE.mouseReleased(fenv);
+
+  fLEVEL=createSlider(0,3000,1000,100);
+  fLEVEL.position(450*Wstep,H-25*Hstep);
+  fLEVEL.style('width','150px');
+  fLEVEL.mouseReleased(fenv);
+
+  RVBtime=createSlider(0,10,5,.1);
+  RVBtime.position(1000*Wstep,H-105*Hstep);
+  RVBtime.style('width','100px');
+  RVBtime.mouseReleased(RVB_UPDATE);
+
+  RVBDecay=createSlider(1,10,2,.1);
+  RVBDecay.position(1000*Wstep,H-85*Hstep);
+  RVBDecay.style('width','100px');
+  RVBDecay.mouseReleased(RVB_UPDATE);
+
+  RVBDRYWET=createSlider(0,1,0,.05);
+  RVBDRYWET.position(1000*Wstep,H-65*Hstep);
+  RVBDRYWET.style('width','100px');
+  RVBDRYWET.mouseReleased(RVB_UPDATE);
+
+  DLYFB=createSlider(0,.99,0,.01);
+  DLYFB.position(800*Wstep,H-105*Hstep);
+  DLYFB.style('width','100px');
+  DLYFB.mouseReleased(DLY_UPDATE);
+
+  DLYtime=createSlider(0,.99,.5,.01);
+  DLYtime.position(800*Wstep,H-85*Hstep);
+  DLYtime.style('width','100px');
+  DLYtime.mouseReleased(DLY_UPDATE);
+
+  DLYleft=createSlider(0,.99,.5,.01);
+  DLYleft.position(800*Wstep,H-65*Hstep);
+  DLYleft.style('width','100px');
+  DLYleft.mouseReleased(DLY_UPDATE);
+
+  DLYright=createSlider(0,.99,.5,.01);
+  DLYright.position(800*Wstep,H-45*Hstep);
+  DLYright.style('width','100px');
+  DLYright.mouseReleased(DLY_UPDATE);
+  
   fenv();
 
   ATTACK=createSlider(0,5,.5,.1);
@@ -140,7 +196,7 @@ function setup() {
   WAVE.option('triangle');
   WAVE.option('sawtooth');
   WAVE.option('square');
-  WAVE.position(place1*Wstep+225*Wstep+240*Wstep,H-80*Hstep);
+  WAVE.position(place1*Wstep+225*Wstep+240*Wstep,H-90*Hstep);
   //this is what we like to call "bad practice"
   WAVE.changed(update_wave);
 
@@ -150,10 +206,28 @@ function setup() {
   F.setType('lowpass');
   F.set(5000,10);
   F.freq(filter_envelope);
-  filter_envelope.aLevel=1000;
+  filter_envelope.aLevel=depth;
+  F.disconnect();
+
+  RVB=new p5.Reverb();
+
+  DLY=new p5.Delay();
+
+  DLYbutton=createButton('Mono/Stereo');
+  DLYbutton.position(800*Wstep,H-137*Hstep);
+  DLYbutton.mousePressed(DLYflip);
+
+  DLY.process(F);
+  RVB.process(DLY);
+  DLY.disconnect();
+  F.connect(RVB);
+  DLY.connect(RVB);
+
+  DLY_UPDATE();
+  RVB_UPDATE();
 
   fenvbutton=createButton('On/Off');
-  fenvbutton.position(place1*Wstep+225*Wstep+150,H-117*Hstep);
+  fenvbutton.position(place1*Wstep+225*Wstep+150,H-137*Hstep);
   fenvbutton.mousePressed(fenvflip);
 
   //Draw all the static stuff in the setup loop to save time
@@ -168,19 +242,35 @@ function setup() {
     text('Decay',place1*Wstep,H-55*Hstep);
     text('Attack',place1*Wstep,H-75*Hstep);
 
-    text('Release',place1*Wstep+225*Wstep,H-15*Hstep);
-    text('Sustain',place1*Wstep+225*Wstep,H-35*Hstep);
-    text('Decay',place1*Wstep+225*Wstep,H-55*Hstep);
-    text('Attack',place1*Wstep+225*Wstep,H-75*Hstep);
+    text('Depth',place1*Wstep+225*Wstep,H-10*Hstep);
+    text('Release',place1*Wstep+225*Wstep,H-30*Hstep);
+    text('Sustain',place1*Wstep+225*Wstep,H-50*Hstep);
+    text('Decay',place1*Wstep+225*Wstep,H-70*Hstep);
+    text('Attack',place1*Wstep+225*Wstep,H-90*Hstep);
+
+    text('Dry/Wet',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-50*Hstep);
+    text('Decay',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-70*Hstep);
+    text('Time',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-90*Hstep);
+
+    text('Time',place1*Wstep+225*Wstep+345*Wstep,H-70*Hstep);
+    text('FB',place1*Wstep+225*Wstep+345*Wstep,H-90*Hstep);
+    text('(Right)',place1*Wstep+225*Wstep+345*Wstep,H-30*Hstep);
+    text('(Left)',place1*Wstep+225*Wstep+345*Wstep,H-50*Hstep);
 
     fill(255,50,100);
     text('Amp Envelope',place1*Wstep,H-100*Hstep);
-    text('Filter Envelope',place1*Wstep+225*Wstep,H-100*Hstep);
+    text('Filter Envelope',place1*Wstep+225*Wstep,H-120*Hstep);
+    text('Reverb',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-120*Hstep);
+    text('Delay',place1*Wstep+225*Wstep+345*Wstep,H-120*Hstep);
 
-    text('Cardinality',Nx,H-100);
-    text('Harmonicity',Nx,H-48);
+    text('Cardinality',Nx,H-120);
+    text('Harmonicity',Nx,H-73);
     text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-100*Hstep);
+    text('Fund (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-48*Hstep);
+
+    noLoop();
 }
+
 
 function initialize(col){
     //Everything defaults to true
@@ -192,8 +282,49 @@ function initialize(col){
   return col;
 }
 
+function RVB_UPDATE(){
+    RVB.drywet(RVBDRYWET.value());
+    RVB.set(RVBtime.value(),RVBDecay.value());
+}
+
+function DLY_UPDATE(){
+    DLY.process(F,DLYtime.value(),DLYFB.value());
+    if(DLYtype=='pingPong'){
+        DLY.rightDelay.delayTime.value=DLYright.value();
+        DLY.leftDelay.delayTime.value=DLYleft.value();
+    }
+}
+
+function DLYflip(){
+    if(DLYtype==0){
+        //DLY.setType('pingPong');
+        DLYtype='pingPong';
+        DLYbutton.style('background-color', color(25, 23, 200, 50));
+        DLY.rightDelay.delayTime.value=DLYright.value();
+        DLY.leftDelay.delayTime.value=DLYleft.value();
+    }
+    else{
+        DLYtype=0;
+        DLY.setType(0);
+        DLYbutton.style('background-color', color('white'));
+        DLY.rightDelay.delayTime.value=DLYtime.value();
+        DLY.leftDelay.delayTime.value=DLYtime.value();
+    }
+}
+
+function fund_update(){
+    fund=int(fundamental.elt.value);
+}
+
+
 function fenvflip(){
-    fenv_is_on!=fenv_is_on;
+    fenv_is_on=!fenv_is_on;
+    if(fenv_is_on){
+        fenvbutton.style('background-color', color('white'));
+    };
+    if(!fenv_is_on){
+        fenvbutton.style('background-color', color(25, 23, 200, 50));
+    };
 }
 
 //default the cardinality to 12-TET. :(
@@ -205,32 +336,28 @@ function getValue(){
 }
 
 ///////////// (j * 10 + i) = row number plus x position
-function draw() {
-
-
+function draw() { 
+    translate(-width/2, -height/2);
     rectMode(CENTER);
     stroke(0);
     ystep=100/y.length;
     xstep=100/x.length;
-    
+    fund_update();
+    DLY_UPDATE();
     if (keyIsDown(LEFT_ARROW)) {
         r=F.res();
         F.res(r-1);
       }
-    
       if (keyIsDown(RIGHT_ARROW)) {
         r=F.res();
         F.res(r+1);
       }
-    
       if (keyIsDown(UP_ARROW)) {
         F.biquad.frequency.value+=50;
       }
-    
       if (keyIsDown(DOWN_ARROW)) {
         F.biquad.frequency.value-=50;
     }
-
     for (var j = 0; j < y.length; j++) {
         for (var i = 0; i < x.length; i++) {
             //Clear the screen
@@ -240,23 +367,23 @@ function draw() {
             filler=[150+xstep*i,80,100+ystep*j];
             inv_filler=[155-(xstep*i),135-(ystep*j)/2,250];
             //Fill the "clicked" boxes black, white otherwise
-            if (col[j][i]){
+            if (col[y.length-j-1][i]){
                 fill(filler);
-                ellipse(x[i], y[j], w, w);
+                ellipse(x[i], y[y.length-j-1], w, w);
             }
             else {
                 fill("black");
-                ellipse(x[i], y[j], w, w);
+                ellipse(x[i], y[y.length-j-1], w, w);
             }
-
             //Write in the numbers for the degree of each note
             textSize(20);
             fill(inv_filler);
             //let center=floor(gridnumx/2);
             //y_index=center-j;
             //x_index=i-center;
-            let num = j*4 + i*3;
-            text(num, x[i]-w/8, y[j]+w/8);
+            let num = j*j_mult + i*i_mult;
+            //console.log(j_mult,i_mult);
+            text(num, x[i]-w/8, y[y.length-j-1]+w/8);
         }
     }
 }
@@ -267,6 +394,7 @@ function env() {
 
 function fenv() {
     filter_envelope.setADSR(fATTACK.value(),fDECAY.value(),fSUSTAIN.value(),fRELEASE.value());
+    filter_envelope.setRange(fLEVEL.value(),0);
 }
 
 function update_wave(){
@@ -291,7 +419,7 @@ function fastfactor(N){
     // While i divides n, save i and divide n 
     while (N % i == 0) 
     { 
-      append(outputarray,i)
+      append(outputarray,i);
       N = N/i; 
     } 
   } 
@@ -316,9 +444,14 @@ function powerlist(arr){
 }
 
 function frqcalc(J_in,I_in){
-    [j_mult,i_mult]=heuristic(powerlist(fastfactor(getValue())));
-    console.log(powerlist(fastfactor(getValue())));
-    console.log([j_mult,i_mult]);
+    power_list = powerlist(fastfactor(getValue()));
+    if(power_list.length==3){
+        power_list=metaheuristic(power_list);
+        console.log('Invoking Metaheuristic');
+    }
+    //console.log(power_list);
+    [j_mult,i_mult]=heuristic(power_list);
+    //console.log(powerlist(fastfactor(getValue())));
     return fund*pow(2,(-j_mult*J_in+i_mult*I_in)/getValue());
 }
 
@@ -332,8 +465,8 @@ function heuristic(arr){
             i_out=i_arr[0];
         }
         if(selector==1){ //intermediate
-            j_out=j_arr[floor(j_arr.length/2)];
-            i_out=i_arr[floor(i_arr.length/2)];
+            j_out=j_arr[floor((j_arr.length-1)/2)]; //HACK
+            i_out=i_arr[floor((i_arr.length-1)/2)];
         }
         if(selector==2){ //chordal
             j_out=j_arr[j_arr.length-1];
@@ -341,15 +474,49 @@ function heuristic(arr){
         }
         return [j_out,i_out];
     }
-    else{
-        if(document.activeElement!=N.elt){
-            alert(['Your number ',getValue(),' could not be factored into 2 primes. \n This is causing me consternation'])
+}
 
-        }
+function metaheuristic(arr){
+    console.log(arr);
+    selector=metaharmonicity.elt.selectedIndex;
+    if(selector==0){ //scalar, 1 and 2
+        j_out=arr[1];
+        i_out=arr[0];
     }
+    if(selector==1){ //intermediate, 2 and 3
+        j_out=arr[2]; 
+        i_out=arr[1];
+    }
+    if(selector==2){ //chordal, 1 and 3
+        j_out=arr[2];
+        i_out=arr[0];
+    }
+    return [i_out,j_out];
 }
 
 function keyPressed(){
+    if (key=='ArrowLeft') {
+        r=F.res();
+        F.res(r-10);
+        return;
+      }
+    
+      if (key=='ArrowRight') {
+        r=F.res();
+        F.res(r+10);
+        return;
+      }
+    
+      if (key=='ArrowUp') {
+        F.biquad.frequency.value+=500;
+        return;
+      }
+    
+      if (key=='ArrowDown') {
+        F.biquad.frequency.value-=500;
+        return;
+    }
+
     if(key==' '){
         filter_envelope.triggerAttack();
         console.log('filter envelope open');
@@ -364,8 +531,6 @@ function keyPressed(){
     keystates[key_y][key_x]=1;
     col[key_y][key_x] =! col[key_y][key_x];
     notearr=get_notes();
-    //console.log(notearr);
-    //console.log(active_notes);
     l=active_notes.length;
 
     i=key_x;
@@ -373,34 +538,7 @@ function keyPressed(){
     frqtotest=frqcalc(j,i);
     append(active_notes,frqtotest)
     polySynth.audiovoices[l].triggerAttack(frqtotest);
-
-    // for(var i = 0; i<notearr.length;i++){
-    //     frqtotest=fund*pow(2,(notearr[i][0]-notearr[i][1])/12);
-    //     if(!(active_notes.includes(frqtotest))){
-    //         append(active_notes,frqtotest)
-    //         polySynth.audiovoices[l].triggerAttack(frqtotest);
-    //     }
-    //     else {
-    //         append(duplicated,frqtotest);
-    //     }
-    // }
-    if (key=LEFT_ARROW) {
-        r=F.res();
-        F.res(r-10);
-      }
-    
-      if (key=RIGHT_ARROW) {
-        r=F.res();
-        F.res(r+10);
-      }
-    
-      if (key=UP_ARROW) {
-        F.biquad.frequency.value+=500;
-      }
-    
-      if (key=DOWN_ARROW) {
-        F.biquad.frequency.value-=500;
-    }
+    redraw();
 }
 
 function keyReleased(){
@@ -408,6 +546,9 @@ function keyReleased(){
         filter_envelope.triggerRelease();
         //console.log('filter envelope closed');
         return
+    }
+    if (fenv_is_on){
+        filter_envelope.triggerRelease();
     }
     arr=locate_key(key);
     key_x=arr[0];
@@ -419,6 +560,7 @@ function keyReleased(){
         polySynth.noteRelease();
         active_notes=[];
         clear_all();
+        redraw();
         return;
     }
     notearr=get_notes();
@@ -431,6 +573,7 @@ function keyReleased(){
         active_notes.splice(ind,1);
         polySynth.audiovoices[ind].triggerRelease();
     }
+    redraw();
 }
 
 function mod(n, m) {
@@ -487,9 +630,4 @@ function clear_all(){
                 keystates[i][j]=0;;
         }
     }
-}
-
-
-function click(){
-    console.log('clicked');
 }
