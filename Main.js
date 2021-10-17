@@ -2,7 +2,7 @@ var x = []; //X locations of circles
 var y = []; //Y locations of circles
 var w; //Width of circles
 var col; //Stores info about coloring
-let yscale=.5; //Scale on the Y-axis
+let yscale=.55; //Scale on the Y-axis
 let xscale=.8; //Scale on the Y-axis (these 2 things turn the square into a rectangle)
 //let gridnum = 11; //Number of rows/columns
 let fund = 220; //Fundamental frequency
@@ -13,8 +13,9 @@ let EDO; //Current N in our N-EDO system
 EDO=12;
 let active_notes=[];
 let place1=150;
-let gridnumx = 14; //Number of rows/columns in x
+let gridnumx = 12; //Number of rows/columns in x
 let gridnumy = 4; //and in y
+let keyboardscaling = 25; //Parameter that "fakes" a keyboard
 let filter_envelope=new p5.Envelope();
 let metaharmonicity;
 let harmonicity;
@@ -34,7 +35,7 @@ function preload() {
 let keygrid=[
     ['1','2','3','4','5','6','7','8','9','0','-','='],
     ['q','w','e','r','t','y','u','i','o','p','[',']'],
-    ['a','s','d','f','g','h','j','k','l',';',"'"],
+    ['a','s','d','f','g','h','j','k','l',';',"'",'Enter'],
     ['z','x','c','v','b','n','m',',','.','/'],
 ];
 
@@ -58,19 +59,18 @@ function setup() {
     createCanvas(windowWidth, windowHeight,WEBGL);
     textFont(Font);
     w=windowWidth/23;
-    offset=w/4;
-    for (var i = 0; i < gridnumx; i++) {
-        for (var j = 0; j < gridnumy; j++) {
+    offset=w/8;
+    for (var j = 0; j < gridnumy; j++) {
+        for (var i = 0; i < gridnumx; i++) {
             x[i] = (w + i * w)/xscale+offset;
             y[j] = (w + j * w)/yscale;
         }
-    }
+    } 
 
   //create an oscillator and polysynth
   monoSynth = new p5.MonoSynth('sawtooth');
   polySynth= new p5.PolySynth();
   polySynth.AudioVoice=monoSynth;
-  //polySynth.setADSR(.1,.1,.8,.2);
   //need this for Chrome
   userStartAudio(); //Yes I WILL start the audio on your browser. Don't fight it.
 
@@ -232,11 +232,37 @@ function setup() {
 
   //Draw all the static stuff in the setup loop to save time
 
-  background(10,0,10);
-  textSize(20);
-  
-  //Put text by the input boxes
-    fill('white');
+
+    noLoop();
+}
+
+function initialize(col){
+    //Everything defaults to true
+    for (var j = 0; j <  gridnumx; j++) {
+        for (var i = 0; i < gridnumy; i++) {
+            col[i][j]=true;
+        }
+    }
+  return col;
+}
+
+function draw() { 
+    clear();
+    translate(-width/2, -height/2);
+    rectMode(CENTER);
+    ystep=100/y.length;
+    xstep=100/x.length;
+    fund_update();
+    DLY_UPDATE();
+
+    background(10,0,10);
+    textSize(20);
+    H=windowHeight;
+    Hstep=H/792;AudioBufferSourceNode
+    W=windowWidth;
+    Wstep=W/1536;
+    //Put text by the input boxes
+    fill(255);
     text('Release',place1*Wstep,H-15*Hstep);
     text('Sustain',place1*Wstep,H-35*Hstep);
     text('Decay',place1*Wstep,H-55*Hstep);
@@ -268,18 +294,87 @@ function setup() {
     text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-100*Hstep);
     text('Fund (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-48*Hstep);
 
-    noLoop();
-}
+    if (keyIsDown(LEFT_ARROW)) {
+        r=F.res();
+        F.res(r-1);
+      }
+      if (keyIsDown(RIGHT_ARROW)) {
+        r=F.res();
+        F.res(r+1);
+      }
+      if (keyIsDown(UP_ARROW)) {
+        F.biquad.frequency.value+=50;
+      }
+      if (keyIsDown(DOWN_ARROW)) {
+        F.biquad.frequency.value-=50;
+    }
+    stroke('white'); 
+    strokeWeight(4);
+    lineX=Wstep*1400;
+    startY=Hstep*50;
+    endY=Hstep*750;
+    Ylen=Hstep*750-Hstep*50;
+    textSize(15);
+    p1=startY+Ylen/4;
+    p2=startY+Ylen/2;
+    p3=startY+3*Ylen/4;
 
+    line(lineX,startY,lineX,endY);
 
-function initialize(col){
-    //Everything defaults to true
-    for (var j = 0; j <  gridnumx; j++) {
-        for (var i = 0; i < gridnumy; i++) {
-            col[i][j]=true;
+    line(lineX-10,startY,lineX+10,startY);
+    text('4',lineX-30,startY+5);
+
+    line(lineX-10,p1,lineX+10,p1);
+    text('3',lineX-30,p1+5);
+
+    line(lineX-10,p2,lineX+10,p2);
+    text('2',lineX-30,p2+5);
+
+    line(lineX-10,p3,lineX+10,p3);
+    text('1',lineX-30,p3+5);
+
+    line(lineX-10,endY,lineX+10,endY);
+    text('0',lineX-30,endY+5);
+    text('Octave',lineX-25,endY+20);
+
+    strokeWeight(1);
+    for (var j = 0; j < y.length; j++) {
+        for (var i = 0; i < x.length; i++) {
+            //Clear the screen
+            if(!keyIsPressed){
+              col=initialize(col);
+            }
+            let num = j*j_mult + i*i_mult;
+            filler=[150+xstep*i,80,100+ystep*j];
+            inv_filler=[155-(xstep*i),135-(ystep*j)/2,250];
+            //Fill the "clicked" boxes black, white otherwise
+            if (col[y.length-j-1][i]){
+                fill(filler);
+                ellipse(x[i]+keyboardscaling*(4-j), y[y.length-j-1], w, w);
+            }
+            else {
+                fill("black");
+                ellipse(x[i]+keyboardscaling*(4-j), y[y.length-j-1], w, w);
+                //console.log(i,j);
+
+                strokeWeight(5);
+                stroke(250, 0, 158); 
+                Yloc=(num/getValue())*(Ylen/4);
+                line(lineX-10,endY-(Yloc*Hstep),lineX+15,endY-(Yloc*Hstep));
+                strokeWeight(1);
+                stroke(255);
+            }
+            //Write in the numbers for the degree of each note
+            textSize(20);
+            fill(inv_filler);
+            //let center=floor(gridnumx/2);
+            //y_index=center-j;
+            //x_index=i-center;
+            //console.log(j_mult,i_mult);
+            
+            text(num, x[i]-w/8+keyboardscaling*(4-j), y[y.length-j-1]+w/8);
         }
     }
-  return col;
 }
 
 function RVB_UPDATE(){
@@ -335,58 +430,6 @@ function getValue(){
   return val;
 }
 
-///////////// (j * 10 + i) = row number plus x position
-function draw() { 
-    translate(-width/2, -height/2);
-    rectMode(CENTER);
-    stroke(0);
-    ystep=100/y.length;
-    xstep=100/x.length;
-    fund_update();
-    DLY_UPDATE();
-    if (keyIsDown(LEFT_ARROW)) {
-        r=F.res();
-        F.res(r-1);
-      }
-      if (keyIsDown(RIGHT_ARROW)) {
-        r=F.res();
-        F.res(r+1);
-      }
-      if (keyIsDown(UP_ARROW)) {
-        F.biquad.frequency.value+=50;
-      }
-      if (keyIsDown(DOWN_ARROW)) {
-        F.biquad.frequency.value-=50;
-    }
-    for (var j = 0; j < y.length; j++) {
-        for (var i = 0; i < x.length; i++) {
-            //Clear the screen
-            if(!keyIsPressed){
-              col=initialize(col);
-            }
-            filler=[150+xstep*i,80,100+ystep*j];
-            inv_filler=[155-(xstep*i),135-(ystep*j)/2,250];
-            //Fill the "clicked" boxes black, white otherwise
-            if (col[y.length-j-1][i]){
-                fill(filler);
-                ellipse(x[i], y[y.length-j-1], w, w);
-            }
-            else {
-                fill("black");
-                ellipse(x[i], y[y.length-j-1], w, w);
-            }
-            //Write in the numbers for the degree of each note
-            textSize(20);
-            fill(inv_filler);
-            //let center=floor(gridnumx/2);
-            //y_index=center-j;
-            //x_index=i-center;
-            let num = j*j_mult + i*i_mult;
-            //console.log(j_mult,i_mult);
-            text(num, x[i]-w/8, y[y.length-j-1]+w/8);
-        }
-    }
-}
 
 function env() {
     polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
@@ -497,23 +540,27 @@ function metaheuristic(arr){
 function keyPressed(){
     if (key=='ArrowLeft') {
         r=F.res();
-        F.res(r-10);
+        F.res(r-1);
+        loop();
         return;
       }
     
       if (key=='ArrowRight') {
         r=F.res();
-        F.res(r+10);
+        F.res(r+1);
+        loop();
         return;
       }
     
       if (key=='ArrowUp') {
-        F.biquad.frequency.value+=500;
+        F.biquad.frequency.value+=50;
+        loop();
         return;
       }
     
       if (key=='ArrowDown') {
-        F.biquad.frequency.value-=500;
+        F.biquad.frequency.value-=50;
+        loop();
         return;
     }
 
@@ -541,6 +588,18 @@ function keyPressed(){
     redraw();
 }
 
+function getnum(J_in,I_in){
+    power_list = powerlist(fastfactor(getValue()));
+    if(power_list.length==3){
+        power_list=metaheuristic(power_list);
+        console.log('Invoking Metaheuristic');
+    }
+    //console.log(power_list);
+    [j_mult,i_mult]=heuristic(power_list);
+    //console.log(powerlist(fastfactor(getValue())));
+    return -j_mult*J_in+i_mult*I_in;
+}
+
 function keyReleased(){
     if(key==' '){
         filter_envelope.triggerRelease();
@@ -549,6 +608,25 @@ function keyReleased(){
     }
     if (fenv_is_on){
         filter_envelope.triggerRelease();
+    }
+    if (key=='ArrowLeft') {
+        noLoop();
+        return;
+      }
+    
+      if (key=='ArrowRight') {
+        noLoop();
+        return;
+      }
+    
+      if (key=='ArrowUp') {
+        noLoop();
+        return;
+      }
+    
+      if (key=='ArrowDown') {
+        noLoop();
+        return;
     }
     arr=locate_key(key);
     key_x=arr[0];
