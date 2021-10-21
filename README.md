@@ -21,6 +21,8 @@ if you really crank the resonance, but not in the nice clean way that most real 
 Sliders can be used to control the ADSR envelopes attached to the amp and filter, as well as the effects. The user can also use dropdown menus to select the core
 waveform of the synthesizer, as well as change the fundamental pitch (the pitch of the note which bears the label "0") in an input box. The other inputs are for the 
 cardinality (the number of tones to the octave), and the "harmonicity" and "metaharmonicity" of the system, which are terms that bear some explanation in the next section. 
+#### THE SLIDER
+Off to the right of the screen, there's a display that shows where the active notes lie in pitch space, showing their frequency over 4 octaves. 
 
 ## The Math
 In this section, I will outline the basic algorithm for deciding which frequency is being played when a user hits a key on the keyboard. The 
