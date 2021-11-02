@@ -1,5 +1,5 @@
 # Grid_Synth
-Driver code for a polyphonic synthesizer with a tonnetz-based user interfae written in p5.js
+Driver code for a polyphonic synthesizer with a tonnetz-based user interface written in p5.js
 
 ## Using the app
 As it stands, this application has been tested on both Google Chrome and Microsoft Edge browsers. In theory, any web browser that supports the
