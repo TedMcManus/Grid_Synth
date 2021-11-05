@@ -648,6 +648,7 @@ function keyPressed(){
     if (fenv_is_on){
         filter_envelope.triggerAttack();
     }
+    //console.log(key)
     //get x and y value of the key
     arr=locate_key(key);
     key_x=arr[0];
@@ -660,12 +661,9 @@ function keyPressed(){
     i=key_x;
     j=key_y;
     frqtotest=frqcalc(j,i); //get the frequency
-    //active_notes.unshift(frqtotest); //And insert it in the first voice in the active array
-    //NOTE - this creates a "round robin" voice allocation scheme. Playing 8 notes will 
-    //cause the first note played to "drop out," and releasing all notes clears the active array
-
+    active_notes.unshift(frqtotest); //and make an oscillator take the frequency
+    console.log(active_notes)
     polySynth.noteAttack(frqtotest);
-    console.log(polySynth.notes);
     redraw(); //update the visuals
 }
 
@@ -714,22 +712,20 @@ function keyReleased(){
     //ensures that the last keyup gives us a blank slate. 
     if(!keyIsPressed){
         polySynth.noteRelease();
-        active_notes=[];
+        //active_notes=[];
         clear_all();
         noLoop();
-        redraw();
         return;
     }
 
-    //notearr=get_notes();
+    notearr=get_notes();
     if(keystates[key_y][key_x]==1){ //if key is on
         keystates[key_y][key_x]=0; //turn it off
         i=key_x;
         j=key_y;
-        frqtotest=frqcalc(j,i); //get the frequency
+        frqtotest=frqcalc(j,i);
     }
-    polySynth.noteRelease(frqtotest); //and trigger the release envelope 
-    console.log(polySynth.notes);
+    polySynth.noteRelease(frqtotest);
     redraw();
 }
 
@@ -751,6 +747,20 @@ function locate_key(key){
     }
 
     key_x=keygrid[key_y].indexOf(key);
+
+    //find the X location
+    // if(key_y==0){
+    //     key_x=keygrid[0].indexOf(key);
+    // }
+    // if(key_y==1){
+    //     key_x=keygrid[1].indexOf(key);
+    // }
+    // if(key_y==2){
+    //     key_x=keygrid[2].indexOf(key);
+    // }
+    // if(key_y==3){
+    //     key_x=keygrid[3].indexOf(key);
+    // }
     return [key_x,key_y];
 }
 
@@ -775,4 +785,5 @@ function clear_all(){
                 keystates[i][j]=0;;
         }
     }
+    redraw();
 }

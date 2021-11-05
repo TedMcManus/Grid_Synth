@@ -85,6 +85,8 @@ takes care of sending the audio to the listener.
 ## CONTRIBUTIONS
 Pull requests are welcome, but please open an issue first so I can learn what you would like to edit. 
 
+## KNOWN ISSUES
+One major disadvantage of a keyboard layout is that keyboard hardware is often designed in a way that does not support multiple keypresses, so when the user plays groups of notes, they will not fire together. If the app is not letting you play groups of notes, try moving to an external keyboard if one is available. This problem seems to be most common in built-in laptop keyboards.  
 <!--
 ## Installation
 
