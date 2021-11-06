@@ -603,7 +603,7 @@ function metaheuristic(arr){ //for a 3-D system
 
 function invoke_the_monte_carlo_method(iind,jind,arr){
     //literally take a random guess
-    console.log(arr.length);
+    //console.log(arr.length);
     j_out=arr[jind]; 
     i_out=arr[iind];
     return [i_out,j_out];
@@ -652,21 +652,24 @@ function keyPressed(){
     arr=locate_key(key);
     key_x=arr[0];
     key_y=arr[1];
-
-    keystates[key_y][key_x]=1; //this note is on, update the grid
-    col[key_y][key_x] =! col[key_y][key_x]; //change the color as well
-    l=active_notes.length; //an open spot in the active note array for the new note 
+    keystates[key_y][key_x]=1;
+    col[key_y][key_x] =! col[key_y][key_x];
+    notearr=get_notes();
+    l=active_notes.length;
 
     i=key_x;
     j=key_y;
-    frqtotest=frqcalc(j,i); //get the frequency
-    //active_notes.unshift(frqtotest); //And insert it in the first voice in the active array
+    frqtotest=frqcalc(j,i);
+    append(active_notes,frqtotest)
+    polySynth.audiovoices[l].triggerAttack(frqtotest);
+    redraw();
+
     //NOTE - this creates a "round robin" voice allocation scheme. Playing 8 notes will 
     //cause the first note played to "drop out," and releasing all notes clears the active array
 
-    polySynth.noteAttack(frqtotest);
-    console.log(polySynth.notes);
-    redraw(); //update the visuals
+    // polySynth.noteAttack(frqtotest);
+    // console.log(polySynth.notes);
+    // redraw(); //update the visuals
 }
 
 //handle all keyup events
@@ -708,28 +711,23 @@ function keyReleased(){
     col[key_y][key_x] =! col[key_y][key_x];
     i=key_x;
     j=key_y;
-
-    //the "oh shit" function, this clears everything when no keys are down
-    //occasionally errors accumulate when the notes are playing for a while, this 
-    //ensures that the last keyup gives us a blank slate. 
     if(!keyIsPressed){
         polySynth.noteRelease();
         active_notes=[];
         clear_all();
-        noLoop();
         redraw();
         return;
     }
-
-    //notearr=get_notes();
-    if(keystates[key_y][key_x]==1){ //if key is on
-        keystates[key_y][key_x]=0; //turn it off
+    notearr=get_notes();
+    if(keystates[key_y][key_x]==1){
+        keystates[key_y][key_x]=0;
         i=key_x;
         j=key_y;
-        frqtotest=frqcalc(j,i); //get the frequency
+        frqtotest=frqcalc(j,i);
+        ind=active_notes.lastIndexOf(frqtotest);
+        active_notes.splice(ind,1);
+        polySynth.audiovoices[ind].triggerRelease();
     }
-    polySynth.noteRelease(frqtotest); //and trigger the release envelope 
-    console.log(polySynth.notes);
     redraw();
 }
 
@@ -776,3 +774,4 @@ function clear_all(){
         }
     }
 }
+
