@@ -327,9 +327,9 @@ function draw() {
     text('Reverb',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-120*Hstep);
     text('Delay',place1*Wstep+225*Wstep+345*Wstep,H-120*Hstep);
 
-    text('Cardinality',Nx,H-120);
-    text('Harmonicity',Nx,H-73);
-    text('Metaharm',Nx,H-30);
+    text('Cardinality',Nx,H-140);
+    text('Harmonicity',Nx,H-83);
+    text('Metaharm',Nx,H-35);
     text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-120*Hstep);
     text('Fund (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-58*Hstep);
 
