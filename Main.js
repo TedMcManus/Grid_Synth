@@ -474,6 +474,7 @@ function amp_env() { //updates amp envelope values
     for(var i=0;i<polySynth.audiovoices.length;i++){
         polySynth.noteADSR(audoivoices[i],ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
     }
+    console.log('this is new');
     //polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
 }
 
@@ -565,7 +566,7 @@ function frqcalc(J_in,I_in){
         tmp = j_mult;
         j_mult=i_mult;
         i_mult=tmp;
-        console.log('swap');
+        //console.log('swap');
     }
     //console.log(powerlist(fastfactor(getValue())));
     return fund*pow(2,(-j_mult*J_in+i_mult*I_in)/getValue()); //this is the frequency
@@ -612,7 +613,7 @@ function metaheuristic(arr){ //for a 3-D system
 
 function invoke_the_monte_carlo_method(iind,jind,arr){
     //literally take a random guess
-    console.log(arr.length);
+    //console.log(arr.length);
     j_out=arr[jind]; 
     i_out=arr[iind];
     return [i_out,j_out];
@@ -674,7 +675,7 @@ function keyPressed(){
     //cause the first note played to "drop out," and releasing all notes clears the active array
 
     polySynth.noteAttack(frqtotest);
-    console.log(polySynth.notes);
+    //console.log(polySynth.notes);
     redraw(); //update the visuals
 }
 
