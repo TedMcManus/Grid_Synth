@@ -204,22 +204,22 @@ function setup() {
   ATTACK=createSlider(0,5,.5,.1);
   ATTACK.position(220*Wstep,H-90*Hstep);
   ATTACK.style('width',slider_width);
-  ATTACK.mouseReleased(env);
+  ATTACK.mouseReleased(amp_env);
 
   DECAY=createSlider(0,5,1,.1);
   DECAY.position(220*Wstep,H-70*Hstep);
   DECAY.style('width',slider_width);
-  DECAY.mouseReleased(env);
+  DECAY.mouseReleased(amp_env);
 
   SUSTAIN=createSlider(0,1,1,.1);
   SUSTAIN.position(220*Wstep,H-50*Hstep);
   SUSTAIN.style('width',slider_width);
-  SUSTAIN.mouseReleased(env);
+  SUSTAIN.mouseReleased(amp_env);
 
   RELEASE=createSlider(0,5,1.5,.1);
   RELEASE.position(220*Wstep,H-30*Hstep);
   RELEASE.style('width',slider_width);
-  RELEASE.mouseReleased(env);
+  RELEASE.mouseReleased(amp_env);
 
   //Which waveform to use
   WAVE=createSelect('WAVE');
@@ -470,7 +470,7 @@ function getValue(){
 }
 
 
-function env() { //updates amp envelope values
+function amp_env() { //updates amp envelope values
     console.log(SUSTAIN.value());
     polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
 }
