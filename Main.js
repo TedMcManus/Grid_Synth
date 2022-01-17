@@ -472,6 +472,7 @@ function getValue(){
 
 function env() { //updates amp envelope values
     polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
+    console.log(SUSTAIN.value())
 }
 
 function fenv() { //updates filter envelope values
