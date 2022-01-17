@@ -478,6 +478,7 @@ function env() { //updates amp envelope values
 function fenv() { //updates filter envelope values
     filter_envelope.setADSR(fATTACK.value(),fDECAY.value(),fSUSTAIN.value(),fRELEASE.value());
     filter_envelope.setRange(fLEVEL.value(),0);
+    console.log('filter');
 }
 
 function update_wave(){ //updates waveform
