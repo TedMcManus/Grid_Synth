@@ -562,6 +562,7 @@ function frqcalc(J_in,I_in){
         tmp = j_mult;
         j_mult=i_mult;
         i_mult=tmp;
+        console.log('swap');
     }
     //console.log(powerlist(fastfactor(getValue())));
     return fund*pow(2,(-j_mult*J_in+i_mult*I_in)/getValue()); //this is the frequency
