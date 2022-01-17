@@ -472,7 +472,7 @@ function getValue(){
 
 function amp_env() { //updates amp envelope values
     for(var i=0;i<polySynth.audiovoices.length;i++){
-        polySynth.noteADSR(audoivoices[i],ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
+        polySynth.noteADSR(audiovoices[i],ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
     }
     console.log('this is new');
     //polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
