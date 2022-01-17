@@ -471,14 +471,15 @@ function getValue(){
 
 
 function amp_env() { //updates amp envelope values
-    console.log(SUSTAIN.value());
-    polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
+    for(var i=0;i<polySynth.audiovoices.length;i++){
+        polySynth.noteADSR(audoivoices[i],ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
+    }
+    //polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
 }
 
 function fenv() { //updates filter envelope values
     filter_envelope.setADSR(fATTACK.value(),fDECAY.value(),fSUSTAIN.value(),fRELEASE.value());
     filter_envelope.setRange(fLEVEL.value(),0);
-    console.log('filter');
 }
 
 function update_wave(){ //updates waveform
