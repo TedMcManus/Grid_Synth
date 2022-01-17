@@ -559,9 +559,9 @@ function frqcalc(J_in,I_in){
     //console.log(power_list);
     [j_mult,i_mult]=heuristic(power_list); //else, assume we're in 2-D
     if(i_mult>j_mult){
-        tmp = i_mult;
-        i_mult=j_mult;
-        j_mult=tmp;
+        tmp = j_mult;
+        j_mult=i_mult;
+        i_mult=tmp;
     }
     //console.log(powerlist(fastfactor(getValue())));
     return fund*pow(2,(-j_mult*J_in+i_mult*I_in)/getValue()); //this is the frequency
