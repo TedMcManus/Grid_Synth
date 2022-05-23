@@ -27,13 +27,23 @@ let fundamental; //Base frequency
 let RVB; //Reverb
 let DLY; //Delay
 let DLYtype = 0; //0=mono, 'ping-pong' = ping-pong (stereo delay)
-let Font; //Which font to use
 let reload; //take a crapshoot? 
 let Iguess;
 let Jguess;
+let Font; //Which font to use
 function preload() {
     Font = loadFont('Assets/OSANS.ttf'); //it's this font (bc it's fast (i hate coding))
 }
+let row1hor
+let row2hor
+let row3hor
+let row4hor
+let row5hor
+let row6hor
+let Wstep
+let Hstep
+let offset
+let bottom
 
 //Hard-code the locations of the keyboard grid
 let keygrid=[
@@ -87,45 +97,47 @@ function setup() {
   //also create some autoscaling step sizes here
   translate(-width/2, -height/2);
   H=windowHeight;
-  Hstep=H/792;
+  Hstep=H/650;
   W=windowWidth;
-  Wstep=W/1536;
-  //Create the input window for the "cardinality" box
-  Nx=20;
-  Ny=windowHeight-windowHeight/10;
-  N=createInput('Cardinality');
-  N.position(Nx,Ny-58*Hstep);
-  N.size(70);
-  N.elt.value=12;
-
-  ent = createButton('Load');
-  ent.position(Nx+30,Ny-58*Hstep);
-  ent.mousePressed(reloadfunc);
-
-
-  //Base frequency input
-  fundamental = createInput('');
-  fundamental.position(place1*Wstep+225*Wstep+240*Wstep,Ny+35*Hstep);
-  fundamental.size(70);
-  fundamental.elt.value=fund;
-  fundamental.input(fund_update);
+  Wstep=W/1550;
 
   //How big should all the slider sizes be
   slidersize=windowWidth/12;
   slider_width=slidersize.toString()+'px'
 
   //How big should select boxes be
-  selectwidth=windowWidth/20;
+  selectwidth=windowWidth/15;
   select_width=selectwidth.toString()+'px'
+
+  //Horizontal position of rows
+  row1hor=(W/500);
+  row2hor=(W/20)*3;
+  row3hor=(W/20)*6;
+  row4hor=(W/20)*9;
+  row5hor=(W/20)*12;
+  row6hor=(W/20)*15;
+  offset=(W/22)+5
+
+  //Create the input window for the "cardinality" box
+  bottom=windowHeight-windowHeight/8;
+  N=createInput('Cardinality');
+  N.position(row1hor,bottom-65*Hstep);
+  N.size(70);
+  N.elt.value=12;
+
+  ent = createButton('Load');
+  ent.position(row1hor+40*Wstep,bottom-65*Hstep);
+  ent.mousePressed(reloadfunc);
+  ent.size(50,slider_width);
 
   //The harmonicity/metaharmonicity (see documentation)
   harmonicity=createSelect('HARMONICITY');
   harmonicity.option('Scalar');
   harmonicity.option('Intermediate');
   harmonicity.option('Chordal');
-  harmonicity.selected='Chordal';
+  harmonicity.elt.selectedIndex=2;
   harmonicity.style('width',select_width);
-  harmonicity.position(Nx,Ny+2*Hstep);
+  harmonicity.position(row1hor,bottom-10*Hstep);
 
   metaharmonicity=createSelect('METAHARMONICITY');
   metaharmonicity.option('Scalar (1&2)');
@@ -133,93 +145,60 @@ function setup() {
   metaharmonicity.option('Chordal (1&3)');
   metaharmonicity.selected='Inter (2&3)';
   metaharmonicity.style('width',select_width);
-  metaharmonicity.position(Nx,Ny+50*Hstep);
-
-  //Define the ASDR parameters of fenv
-  fill('white');
-  fATTACK=createSlider(0,5,.5,.1);
-  fATTACK.position(450*Wstep,H-105*Hstep);
-  fATTACK.style('width',slider_width);
-  fATTACK.mouseReleased(fenv);
-
-  fDECAY=createSlider(0,5,1,.1);
-  fDECAY.position(450*Wstep,H-85*Hstep);
-  fDECAY.style('width',slider_width);
-  fDECAY.mouseReleased(fenv);
-
-  fSUSTAIN=createSlider(0,1,1,.1);
-  fSUSTAIN.position(450*Wstep,H-65*Hstep);
-  fSUSTAIN.style('width',slider_width);
-  fSUSTAIN.mouseReleased(fenv);
-
-  fRELEASE=createSlider(0,5,1.5,.1);
-  fRELEASE.position(450*Wstep,H-45*Hstep);
-  fRELEASE.style('width',slider_width);
-  fRELEASE.mouseReleased(fenv);
-
-  fLEVEL=createSlider(0,3000,1000,100);
-  fLEVEL.position(450*Wstep,H-25*Hstep);
-  fLEVEL.style('width',slider_width);
-  fLEVEL.mouseReleased(fenv);
-
-  //Reverb parameters 
-  FXwidth=(slidersize-W/50).toString()+'px'
-  RVBtime=createSlider(0,10,5,.1);
-  RVBtime.position(1000*Wstep-20,H-105*Hstep);
-  RVBtime.style('width',FXwidth);
-  RVBtime.mouseReleased(RVB_UPDATE);
-
-  RVBDecay=createSlider(1,10,2,.1);
-  RVBDecay.position(1000*Wstep-20,H-85*Hstep);
-  RVBDecay.style('width',FXwidth);
-  RVBDecay.mouseReleased(RVB_UPDATE);
-
-  RVBDRYWET=createSlider(0,1,0,.05);
-  RVBDRYWET.position(1000*Wstep-20,H-65*Hstep);
-  RVBDRYWET.style('width',FXwidth);
-  RVBDRYWET.mouseReleased(RVB_UPDATE);
-
-  //Delay parameters
-  DLYFB=createSlider(0,.99,0,.01);
-  DLYFB.position(800*Wstep-20,H-105*Hstep);
-  DLYFB.style('width',FXwidth);
-  DLYFB.mouseReleased(DLY_UPDATE);
-
-  DLYtime=createSlider(0,.99,.5,.01);
-  DLYtime.position(800*Wstep-20,H-85*Hstep);
-  DLYtime.style('width',FXwidth);
-  DLYtime.mouseReleased(DLY_UPDATE);
-
-  DLYleft=createSlider(0,.99,.5,.01);
-  DLYleft.position(800*Wstep-20,H-65*Hstep);
-  DLYleft.style('width',FXwidth);
-  DLYleft.mouseReleased(DLY_UPDATE);
-
-  DLYright=createSlider(0,.99,.5,.01);
-  DLYright.position(800*Wstep-20,H-45*Hstep);
-  DLYright.style('width',FXwidth);
-  DLYright.mouseReleased(DLY_UPDATE);
+  metaharmonicity.position(row1hor,bottom+45*Hstep);
 
   //Amp envelope parameters
   ATTACK=createSlider(0,5,.5,.1);
-  ATTACK.position(220*Wstep,H-90*Hstep);
+  ATTACK.position(row2hor,H-105*Hstep);
   ATTACK.style('width',slider_width);
   ATTACK.mouseReleased(amp_env);
 
   DECAY=createSlider(0,5,1,.1);
-  DECAY.position(220*Wstep,H-70*Hstep);
+  DECAY.position(row2hor,H-85*Hstep);
   DECAY.style('width',slider_width);
   DECAY.mouseReleased(amp_env);
 
   SUSTAIN=createSlider(0,1,1,.1);
-  SUSTAIN.position(220*Wstep,H-50*Hstep);
+  SUSTAIN.position(row2hor,H-65*Hstep);
   SUSTAIN.style('width',slider_width);
   SUSTAIN.mouseReleased(amp_env);
 
   RELEASE=createSlider(0,5,1.5,.1);
-  RELEASE.position(220*Wstep,H-30*Hstep);
+  RELEASE.position(row2hor,H-45*Hstep);
   RELEASE.style('width',slider_width);
   RELEASE.mouseReleased(amp_env);
+
+  //Define the ASDR parameters of fenv
+  fill('white');
+  fATTACK=createSlider(0,5,.5,.1);
+  fATTACK.position(row3hor,H-105*Hstep);
+  fATTACK.style('width',slider_width);
+  fATTACK.mouseReleased(fenv);
+
+  fDECAY=createSlider(0,5,1,.1);
+  fDECAY.position(row3hor,H-85*Hstep);
+  fDECAY.style('width',slider_width);
+  fDECAY.mouseReleased(fenv);
+
+  fSUSTAIN=createSlider(0,1,1,.1);
+  fSUSTAIN.position(row3hor,H-65*Hstep);
+  fSUSTAIN.style('width',slider_width);
+  fSUSTAIN.mouseReleased(fenv);
+
+  fRELEASE=createSlider(0,5,1.5,.1);
+  fRELEASE.position(row3hor,H-45*Hstep);
+  fRELEASE.style('width',slider_width);
+  fRELEASE.mouseReleased(fenv);
+
+  fLEVEL=createSlider(0,3000,1000,100);
+  fLEVEL.position(row3hor,H-25*Hstep);
+  fLEVEL.style('width',slider_width);
+  fLEVEL.mouseReleased(fenv);
+
+  //Should the filter envelope be engaged? 
+  fenvbutton=createButton('On/Off');
+  fenvbutton.position(row3hor+50,H-137*Hstep);
+  fenvbutton.mousePressed(fenvflip);
 
   //Which waveform to use
   WAVE=createSelect('WAVE');
@@ -228,9 +207,60 @@ function setup() {
   WAVE.option('sawtooth');
   WAVE.option('square');
   //this is what we like to call "bad practice"
-  WAVE.position(place1*Wstep+225*Wstep+240*Wstep,H-105*Hstep);
+  WAVE.position(row4hor-offset/2,H-105*Hstep);
   WAVE.changed(update_wave);
   WAVE.selected('triangle')
+
+  //Base frequency input
+  fundamental = createInput('');
+  fundamental.position(row4hor-offset/2,bottom+35*Hstep);
+  fundamental.size(70);
+  fundamental.elt.value=fund;
+  fundamental.input(fund_update);
+
+
+  FXwidth=slider_width;
+  //Delay parameters
+  DLYFB=createSlider(0,.99,0,.01);
+  DLYFB.position(row5hor,H-105*Hstep);
+  DLYFB.style('width',FXwidth);
+  DLYFB.mouseReleased(DLY_UPDATE);
+
+  DLYtime=createSlider(0,.99,.5,.01);
+  DLYtime.position(row5hor,H-85*Hstep);
+  DLYtime.style('width',FXwidth);
+  DLYtime.mouseReleased(DLY_UPDATE);
+
+  DLYleft=createSlider(0,.99,.5,.01);
+  DLYleft.position(row5hor,H-65*Hstep);
+  DLYleft.style('width',FXwidth);
+  DLYleft.mouseReleased(DLY_UPDATE);
+
+  DLYright=createSlider(0,.99,.5,.01);
+  DLYright.position(row5hor,H-45*Hstep);
+  DLYright.style('width',FXwidth);
+  DLYright.mouseReleased(DLY_UPDATE);
+
+  //Switch the delay mode
+  DLYbutton=createButton('Mono/Stereo');
+  DLYbutton.position(row5hor,H-140*Hstep);
+  DLYbutton.mousePressed(DLYflip);
+
+  //Reverb parameters 
+  RVBtime=createSlider(0,10,5,.1);
+  RVBtime.position(row6hor,H-105*Hstep);
+  RVBtime.style('width',FXwidth);
+  RVBtime.mouseReleased(RVB_UPDATE);
+
+  RVBDecay=createSlider(1,10,2,.1);
+  RVBDecay.position(row6hor,H-85*Hstep);
+  RVBDecay.style('width',FXwidth);
+  RVBDecay.mouseReleased(RVB_UPDATE);
+
+  RVBDRYWET=createSlider(0,1,0,.05);
+  RVBDRYWET.position(row6hor,H-65*Hstep);
+  RVBDRYWET.style('width',FXwidth);
+  RVBDRYWET.mouseReleased(RVB_UPDATE);
 
   //Define the filter and set up the effects chain
   //the "connect"/"disconnect" methods set up where the audio flows
@@ -247,11 +277,6 @@ function setup() {
 
   DLY=new p5.Delay();
 
-  //Switch the delay mode
-  DLYbutton=createButton('Mono/Stereo');
-  DLYbutton.position(800*Wstep,H-137*Hstep);
-  DLYbutton.mousePressed(DLYflip);
-
   //More audio path setup here
   DLY.process(F);
   RVB.process(DLY);
@@ -261,11 +286,6 @@ function setup() {
 
   DLY_UPDATE();
   RVB_UPDATE();
-
-  //Sould the filter envelope be engaged? 
-  fenvbutton=createButton('On/Off');
-  fenvbutton.position(place1*Wstep+225*Wstep+120,H-137*Hstep);
-  fenvbutton.mousePressed(fenvflip);
 
 
   //By default, p5 is always running the draw loop. We don't want this, because
@@ -295,43 +315,48 @@ function draw() {
     background(10,0,10);
     textSize(15);
     H=windowHeight;
-    Hstep=H/792;
     W=windowWidth;
-    Wstep=W/1536;
-
     //Put text by the input boxes
     fill(255);
-    text('Release',place1*Wstep,H-15*Hstep);
-    text('Sustain',place1*Wstep,H-35*Hstep);
-    text('Decay',place1*Wstep,H-55*Hstep);
-    text('Attack',place1*Wstep,H-75*Hstep);
+    text('Release',row2hor-offset,H-30*Hstep);
+    text('Sustain',row2hor-offset,H-50*Hstep);
+    text('Decay',row2hor-offset,H-70*Hstep);
+    text('Attack',row2hor-offset,H-90*Hstep);
+    fill(255,50,100);
+    text('Amp Envelope',row2hor-offset,H-120*Hstep);
 
-    text('Depth',place1*Wstep+225*Wstep,H-10*Hstep);
-    text('Release',place1*Wstep+225*Wstep,H-30*Hstep);
-    text('Sustain',place1*Wstep+225*Wstep,H-50*Hstep);
-    text('Decay',place1*Wstep+225*Wstep,H-70*Hstep);
-    text('Attack',place1*Wstep+225*Wstep,H-90*Hstep);
-
-    text('Depth',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-50*Hstep);
-    text('Decay',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-70*Hstep);
-    text('Time',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-90*Hstep);
-
-    text('Time',place1*Wstep+225*Wstep+345*Wstep,H-70*Hstep);
-    text('FB',place1*Wstep+225*Wstep+345*Wstep,H-90*Hstep);
-    text('(Right)',place1*Wstep+225*Wstep+345*Wstep,H-30*Hstep);
-    text('(Left)',place1*Wstep+225*Wstep+345*Wstep,H-50*Hstep);
+    text('Filter Env',row3hor-offset,H-120*Hstep);
+    fill(255);    
+    text('Depth',row3hor-offset,H-10*Hstep);
+    text('Release',row3hor-offset,H-30*Hstep);
+    text('Sustain',row3hor-offset,H-50*Hstep);
+    text('Decay',row3hor-offset,H-70*Hstep);
+    text('Attack',row3hor-offset,H-90*Hstep);
 
     fill(255,50,100);
-    text('Amp Envelope',place1*Wstep,H-100*Hstep);
-    text('Filter Envelope',place1*Wstep+225*Wstep,H-120*Hstep);
-    text('Reverb',place1*Wstep+225*Wstep+345*Wstep+200*Wstep,H-120*Hstep);
-    text('Delay',place1*Wstep+225*Wstep+345*Wstep,H-120*Hstep);
+    text('Wave Type',row4hor-offset/2,H-120*Hstep);
+    text('Fund (Hz)',row4hor-offset/2,H-58*Hstep);
+    fill(255)
 
-    text('Cardinality',Nx,H-140);
-    text('Harmonicity',Nx,H-83);
-    text('Metaharm',Nx,H-35);
-    text('Wave Type',place1*Wstep+225*Wstep+235*Wstep,H-120*Hstep);
-    text('Fund (Hz)',place1*Wstep+225*Wstep+235*Wstep,H-58*Hstep);
+    text('Time',row5hor-offset,H-70*Hstep);
+    text('FB',row5hor-offset,H-90*Hstep);
+    text('(Right)',row5hor-offset,H-30*Hstep);
+    text('(Left)',row5hor-offset,H-50*Hstep);
+    fill(255,50,100);
+    text('Delay',row5hor-offset,H-120*Hstep);
+
+    text('Reverb',row6hor,H-120*Hstep);
+    fill(255)
+    text('Depth',row6hor-offset,H-50*Hstep);
+    text('Decay',row6hor-offset,H-70*Hstep);
+    text('Time',row6hor-offset,H-90*Hstep);
+
+    fill(255,50,100);
+    text('Cardinality',row1hor,bottom-70*Hstep);
+    text('Harmonicity',row1hor,bottom-17*Hstep);
+    text('Metaharm',row1hor,bottom+38*Hstep);
+
+
 
     //Map the arrow keys to resonance and cutoff
     if (keyIsDown(LEFT_ARROW)) {
@@ -352,10 +377,10 @@ function draw() {
     //Set up the line that displays note values against the octave
     stroke('white'); 
     strokeWeight(4);
-    lineX=Wstep*1400;
-    startY=Hstep*50;
-    endY=Hstep*750;
-    Ylen=Hstep*750-Hstep*50;
+    lineX=W-(W/20);
+    startY=10;
+    endY=H-10;
+    Ylen=H-20;
     textSize(15);
     p1=startY+Ylen/4;
     p2=startY+Ylen/2;
@@ -403,8 +428,8 @@ function draw() {
                 //since the note is on, draw it on the octave grid
                 strokeWeight(5);
                 stroke(250, 0, 158); 
-                Yloc=(num/getValue())*(Ylen/4);
-                line(lineX-10,endY-(Yloc*Hstep),lineX+15,endY-(Yloc*Hstep));
+                Yloc=Ylen-(startY+(num/getValue())*(Ylen/4))+20;
+                line(lineX-10,Yloc,lineX+15,Yloc);
                 strokeWeight(1);
                 stroke(255);
             }
