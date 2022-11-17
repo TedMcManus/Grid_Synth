@@ -20,6 +20,7 @@ let filter_envelope=new p5.Envelope(); //Envelope routed to filter frq
 let metaharmonicity; //Which factors to choose in 3D system
 let harmonicity; //Which factors to choose in 2D system
 let fenv_is_on=true; //Is fenv active? 
+let fenv_is_open=false; //Is the filter open? 
 let depth = 1000; //How much does the filter envelope affect frq? 
 let j_mult = 4; //Default X and Y mult values
 let i_mult = 3;
@@ -54,6 +55,14 @@ let keygrid=[
 ];
 
 //This saves which keys are pressed
+let frqgrid=[
+    [0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0],
+];
+
+//This saves which keys are pressed
 let keystates=[
     [0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0],
@@ -73,6 +82,8 @@ function setup() {
     //create a grid that scales with window size
     //if ur screen is small u will have a bad time
     col=initialize(col);
+    windowWidth=windowWidth-20;
+    windowHeight=windowHeight-20;
     createCanvas(windowWidth, windowHeight,WEBGL);
     textFont(Font);
     w=windowWidth/23;
@@ -90,10 +101,11 @@ function setup() {
   monoSynth = new p5.MonoSynth('sawtooth');
   polySynth= new p5.PolySynth();
   polySynth.AudioVoice=monoSynth;
+  polySynth.maxVoices=48;
   //need this for Chrome
-  userStartAudio(); //Yes I WILL start the audio on your browser. Don't fight it.
+  userStartAudio(); //Yes I WILL start the audio on your browser. Deal. 
 
-  //OpenGL uses a different coordinate system than deafult JS
+  //OpenGL uses a different coordinate system than deafult p5
   //also create some autoscaling step sizes here
   translate(-width/2, -height/2);
   H=windowHeight;
@@ -209,7 +221,7 @@ function setup() {
   //this is what we like to call "bad practice"
   WAVE.position(row4hor-offset/2,H-105*Hstep);
   WAVE.changed(update_wave);
-  WAVE.selected('triangle')
+  WAVE.selected('sine')
 
   //Base frequency input
   fundamental = createInput('');
@@ -286,6 +298,8 @@ function setup() {
 
   DLY_UPDATE();
   RVB_UPDATE();
+
+  reloadfunc();
 
 
   //By default, p5 is always running the draw loop. We don't want this, because
@@ -497,7 +511,7 @@ function getValue(){
 
 function amp_env() { //updates amp envelope values
     polySynth.setADSR(ATTACK.value(),DECAY.value(),SUSTAIN.value(),RELEASE.value());
-    console.log('ADSR set');
+    //console.log('ADSR set');
 }
 
 function fenv() { //updates filter envelope values
@@ -554,6 +568,15 @@ function powerlist(arr){
 }
 
 function reloadfunc(){
+    if(powerlist(fastfactor(getValue())).length==1){
+        alert("Cardinality value is not factorable, please pick another option");
+        return;
+    }
+    for(row=0;row<frqgrid.length;row++){
+        for(column=0;column<frqgrid[row].length;column++){
+            frqgrid[row][column]=frqcalc(row,column);
+        }
+    }
     reload=true;
 }
 function monte(arr){ //just go crazy
@@ -588,9 +611,9 @@ function frqcalc(J_in,I_in){
         tmp = j_mult;
         j_mult=i_mult;
         i_mult=tmp;
-        console.log('swap');
+        //console.log('swap');
     }
-    //console.log(powerlist(fastfactor(getValue())));
+    ////console.log(powerlist(fastfactor(getValue())));
     return fund*pow(2,(-j_mult*J_in+i_mult*I_in)/getValue()); //this is the frequency
 }
 
@@ -635,7 +658,7 @@ function metaheuristic(arr){ //for a 3-D system
 
 function invoke_the_monte_carlo_method(iind,jind,arr){
     //literally take a random guess
-    console.log(arr.length);
+    //console.log(arr.length);
     j_out=arr[jind]; 
     i_out=arr[iind];
     return [i_out,j_out];
@@ -677,8 +700,9 @@ function keyPressed(){
         //console.log('filter envelope open');
         return
     }
-    if (fenv_is_on){
+    if (fenv_is_on&!fenv_is_open){
         filter_envelope.triggerAttack();
+        fenv_is_open=true;
     }
     //get x and y value of the key
     arr=locate_key(key);
@@ -687,17 +711,9 @@ function keyPressed(){
 
     keystates[key_y][key_x]=1; //this note is on, update the grid
     col[key_y][key_x] =! col[key_y][key_x]; //change the color as well
-    l=active_notes.length; //an open spot in the active note array for the new note 
 
-    i=key_x;
-    j=key_y;
-    frqtotest=frqcalc(j,i); //get the frequency
-    //active_notes.unshift(frqtotest); //And insert it in the first voice in the active array
-    //NOTE - this creates a "round robin" voice allocation scheme. Playing 8 notes will 
-    //cause the first note played to "drop out," and releasing all notes clears the active array
-
-    polySynth.noteAttack(frqtotest);
-    console.log(polySynth.notes);
+    polySynth.noteAttack(frqgrid[key_y][key_x]);
+    //console.log(polySynth.notes);
     redraw(); //update the visuals
 }
 
@@ -708,8 +724,9 @@ function keyReleased(){
         //console.log('filter envelope closed');
         return
     }
-    if (fenv_is_on){
+    if (fenv_is_on&!keyIsPressed){
         filter_envelope.triggerRelease();
+        fenv_is_open=false;
     }
 
     //turn off looping if the arrow keys are up
@@ -756,12 +773,12 @@ function keyReleased(){
     //notearr=get_notes();
     if(keystates[key_y][key_x]==1){ //if key is on
         keystates[key_y][key_x]=0; //turn it off
-        i=key_x;
-        j=key_y;
-        frqtotest=frqcalc(j,i); //get the frequency
     }
-    polySynth.noteRelease(frqtotest); //and trigger the release envelope 
-    console.log(polySynth.notes);
+
+    console.log(keyIsDown(keyCode));
+    if(!keyIsDown(keyCode)){
+        polySynth.noteRelease(frqgrid[key_y][key_x]); //and trigger the release envelope 
+    }
     redraw();
 }
 
