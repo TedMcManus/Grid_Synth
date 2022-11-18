@@ -63,9 +63,9 @@ superimposed by theorists who are very concerned about triads :)
 
 
 ## Functionality (How the sound gets to you)
-As it stands, the sound engine behind the user interface is based on classic analog polyphonic synthesizers. Every time that a key is pressed, 
-one of the internal oscillators is assigned a note value, and is added to the list of notes that are audible. This is the beginning of a 
-chain of digital sound processing that ends in the computer speakers. 
+The sound engine behind the user interface is loosely based on classic analog subtractive synthesizers. For those unfamiliar with the basics of subtractive synthesis, Yamaha has published a very comprehensive guide [here](https://yamahasynth.com/learn/synth-programming/subtractive-synthesis-101-part-one-the-basics).
+
+Every time that a key is pressed, one of the internal oscillators is assigned a note value, and is added to the list of notes that are audible. This is the beginning of a chain of digital sound processing that ends in the computer speakers. 
 
 First, the raw audio from the oscillator goes into an amplifier that is controlled by the "Amp Envelope." When a key is pressed, it triggers the Attack and Decay
 stages of the envelope, and sustains at the level of the "sustain" slider until the key is released, triggering the Release phase. This behavior
@@ -89,35 +89,3 @@ Pull requests are welcome, but please open an issue first so I can learn what yo
 
 ## KNOWN ISSUES
 One major disadvantage of a keyboard layout is that keyboard hardware is often designed in a way that does not support multiple keypresses, so when the user plays groups of notes, they will not fire together. If the app is not letting you play groups of notes, try moving to an external keyboard if one is available. This problem seems to be most common in built-in laptop keyboards.  
-<!--
-## Installation
-
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
-
-```bash
-pip install foobar
-```
-
-## Usage
-
-```python
-import foobar
-
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
-```
-
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
--->
