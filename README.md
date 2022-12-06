@@ -8,28 +8,27 @@ As it stands, this application has been tested on both Google Chrome and Microso
 [Web Audio API](https://caniuse.com/audio-api) and [P5.js](https://github.com/processing/p5.js/blob/main/contributor_docs/supported_browsers.md)
 should be able to use the application without problems. 
 
+# Basic Theory 
+The sound engine behind the user interface is loosely based on classic analog subtractive synthesizers. For those unfamiliar with the basics of subtractive synthesis, Yamaha has published a very comprehensive guide [here](https://yamahasynth.com/learn/synth-programming/subtractive-synthesis-101-part-one-the-basics). Understanding subtractive synthesis will be very helpful to understanding the functionality of the instrument, but is not strictly necessary to use it. 
+
 ## Controls
 The application supports several user interactions:
 #### PLAYING NOTES 
 Pressing any key on your computer keyboard will trigger a note. On the top row, keys from "1" to "=" will work, on the second, "q" to "]", on the third, 
 "a" to "'", and on the fourth, "z" to "/". The layout of a typical keyboard makes playing notes somewhat annoying, so if you have an ortholinear 
-keyboard, definitely break it out here. Currently, using the mouse will not trigger notes, so this application will not function on an ipad, iphone, or other 
+keyboard, it would be recommended. Currently, using the mouse will not trigger notes, so this application will not function on an ipad, iphone, or other 
 touchscreen-based device. 
 #### FILTER CONTROLS
 Pressing the space bar will trigger the filter envelope manually (as will playing a note while the envelope is on). Additionally, the arrow keys control 
-filter parameters - up/down controls the cutoff and left/right controls the resonance (left is less, right is more). The filter will do something resembling self-resonating
-if you really crank the resonance, but not in the nice clean way that most real LPFs will, so watch out with the right arrow key. 
+filter parameters - up and down control the cutoff and left and right control the resonance (left is less, right is more). The filter will do something resembling self-resonating at extreme values for resonance, but not in the nice clean way that most analog filters will, so watch out when using the right arrow key. 
 #### OTHER CONTROLS
 Sliders can be used to control the ADSR envelopes attached to the amp and filter, as well as the effects. The user can also use dropdown menus to select the core
 waveform of the synthesizer, as well as change the fundamental pitch (the pitch of the note which bears the label "0") in an input box. The other inputs are for the 
 cardinality (the number of tones to the octave), and the "harmonicity" and "metaharmonicity" of the system, which are terms that bear some explanation in the next section. 
-#### THE SLIDER
 Off to the right of the screen, there's a display that shows where the active notes lie in pitch space, showing their frequency over 4 octaves. 
 
 ## The Math
-In this section, I will outline the basic algorithm for deciding which frequency is being played when a user hits a key on the keyboard. The 
-following explanation does very little to engage with *why* the operations are taking place, but this will be adressed in an upcoming thesis in the Dartmouth 
-department of music. 
+In this section, I will outline the basic algorithm for deciding which frequency is being played when a user hits a key on the keyboard. 
 
 First off, the code checks what the number in the "cardinality" input box is (we'll call it N), and splits the interval from the fundamental frequency 
 to the note an octave above it into N equally-spaced intervals. This creates an N-TET (N-tone equally tempered) system. More about the theory of equal temperament is 
@@ -63,7 +62,6 @@ superimposed by theorists who are very concerned about triads :)
 
 
 ## Functionality (How the sound gets to you)
-The sound engine behind the user interface is loosely based on classic analog subtractive synthesizers. For those unfamiliar with the basics of subtractive synthesis, Yamaha has published a very comprehensive guide [here](https://yamahasynth.com/learn/synth-programming/subtractive-synthesis-101-part-one-the-basics).
 
 Every time that a key is pressed, one of the internal oscillators is assigned a note value, and is added to the list of notes that are audible. This is the beginning of a chain of digital sound processing that ends in the computer speakers. 
 
