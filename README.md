@@ -1,10 +1,11 @@
 # Description
 Driver code for a polyphonic synthesizer with a tonnetz-based user interface written in p5.js, accessible on GitHub Pages at [https://tedmcmanus.github.io/Grid_Synth/](https://tedmcmanus.github.io/Grid_Synth/) 
 
-# Basic Theory 
+# Documentation
+
+## Basic Theory 
 The sound engine behind the user interface is loosely based on classic analog subtractive synthesizers. For those unfamiliar with the basics of subtractive synthesis, Yamaha has published a very comprehensive guide [here](https://yamahasynth.com/learn/synth-programming/subtractive-synthesis-101-part-one-the-basics). Understanding subtractive synthesis will be very helpful to understanding the functionality of the instrument, but is not strictly necessary to use it. 
 
-# Documentation
 
 ## Using the app
 As it stands, this application has been tested on both Google Chrome and Microsoft Edge browsers. In theory, any web browser that supports the
